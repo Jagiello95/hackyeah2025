@@ -221,3 +221,37 @@ body {
 
   --header-md: 2rem;
 }
+
+.card {
+  background-color: var(--panel);
+  transition: margin 0.8s, border-radius var(--card-anim-dur), box-shadow 0.3s;
+  display: flex;
+  align-items: center;
+  flex: 1;
+
+  &.init {
+    background-color: var(--panel);
+    border-radius: var(--default-border-radius);
+    box-shadow: var(--box-shadow);
+    // margin: 3rem;
+  }
+}
+
+.p-3 {
+  padding: 3rem;
+}
+
+.card-container {
+  flex: 1;
+  display: flex;
+
+  &--col {
+    flex-direction: column;
+  }
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  background-color: var(--primary-deep);
+}

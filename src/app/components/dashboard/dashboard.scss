@@ -1,0 +1,17 @@
+:host {
+  flex: 1;
+  display: flex;
+  padding: var(--page-spacing-md);
+}
+
+.card.init {
+  margin: var(--page-spacing-md);
+}
+
+@media only screen and (max-width: 600px) {
+  :host {
+    flex-direction: column;
+    padding: 0 !important;
+  }
+}
+
