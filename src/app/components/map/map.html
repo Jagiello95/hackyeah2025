@@ -13,11 +13,26 @@
   >
     Loading
   </button>
-  @if (false) {
-  <mat-slide-toggle class="top-button top-button__3" [disableRipple]="true">
+
+  <mat-slide-toggle class="top-button top-button__3" [disableRipple]="true" [formControl]="mock">
+    Use mocked data
+  </mat-slide-toggle>
+
+  <mat-slide-toggle
+    class="top-button top-button__3"
+    [disableRipple]="true"
+    [formControl]="marineTraffic"
+  >
     Load MarineTraffic mock
   </mat-slide-toggle>
-  }
+
+  <mat-slide-toggle
+    class="top-button top-button__3"
+    [disableRipple]="true"
+    [formControl]="trackShips"
+  >
+    Track WS Ships
+  </mat-slide-toggle>
 
   <!-- <mat-slide-toggle class="top-button top-button__3" [disableRipple]="true">
     Submarine Cables

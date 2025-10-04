@@ -1,10 +1,10 @@
 export interface MTShipData {
   lat: number;
   lon: number;
-  speed: number;
-  course: number;
+  speed: number | null;
+  course: number | null;
   heading: number | null;
-  elapsed: number;
+  elapsed: number | null;
   destination: string | null;
   flag: string | null;
   length: number | null;
