@@ -10,6 +10,9 @@ import { Navigation } from './services/navigation';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Sidenav } from './components/sidenav/sidenav';
 import { concatMap, map, timer } from 'rxjs';
+import { API } from './services/api';
+import { Store } from './services/store';
+import { MTShipData } from './models/mt-ship-data.model';
 
 @Component({
   selector: 'app-root',
@@ -30,6 +33,9 @@ import { concatMap, map, timer } from 'rxjs';
 export class App {
   protected readonly title = signal('hackyeah2025');
 
+  private api = inject(API);
+  private store = inject(Store);
+
   protected navigation = inject(Navigation);
   protected router = inject(Router);
 
@@ -42,6 +48,9 @@ export class App {
   }
 
   ngOnInit(): void {
+    this.api.fetchShips().subscribe((res: MTShipData[]) => {
+      this.store.shipData$.next(res);
+    });
     this.assignRedirection();
   }
 

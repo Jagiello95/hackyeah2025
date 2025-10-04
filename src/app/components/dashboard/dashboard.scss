@@ -5,7 +5,15 @@
 }
 
 .card.init {
-  margin: var(--page-spacing-md);
+  margin: 1rem var(--page-spacing-md);
+
+  &:hover {
+    .mat-icon {
+      text-shadow: 0 0 2px var(--danger), 0 0 2px var(--danger);
+    }
+
+    cursor: pointer;
+  }
 }
 
 @media only screen and (max-width: 600px) {
@@ -15,3 +23,40 @@
   }
 }
 
+.mat-icon {
+  --size: 5rem;
+  width: var(--size);
+  height: var(--size);
+  font-size: var(--size);
+  color: var(--primary);
+  transition: color var(--transition-extra) ease-out;
+
+  &.danger {
+    color: var(--danger);
+  }
+
+  &.warning {
+    color: var(--warning);
+  }
+}
+
+.p-1 {
+  padding: 1rem;
+}
+
+.card--danger {
+  border-bottom: 3px solid var(--danger);
+}
+
+.card--warning {
+  border-bottom: 3px solid var(--warning);
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.card-content {
+  margin-left: 0.5rem;
+}

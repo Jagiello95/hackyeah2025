@@ -4,6 +4,7 @@ import { MapShipPoint } from '../../models/map-ship-point.model';
 import { FocusedShipPoint } from '../../models/focused-ship-point.model';
 import { midCountryMap } from '../../constants/mid-to-country';
 import { ShipTypes } from '../../constants/ship-type';
+import { MTShipData } from '../../models/mt-ship-data.model';
 
 @Component({
   selector: 'app-sidebar',
@@ -24,11 +25,11 @@ export class Sidebar {
 
   private store = inject(Store);
 
-  protected selectedShip: FocusedShipPoint | null = null;
+  protected selectedShip: MTShipData | null = null;
   protected isExpanded = false;
 
   ngOnInit(): void {
-    this.store.focusedShip$.subscribe((ship: FocusedShipPoint | null) => {
+    this.store.focusedShip$.subscribe((ship: MTShipData | null) => {
       this.selectedShip = ship;
       console.log('selectedShip', this.selectedShip);
     });
@@ -40,16 +41,16 @@ export class Sidebar {
     }
   }
 
-  public getShipCountry(ship: FocusedShipPoint) {
-    const prefix = +`${ship.mmsi}`.substring(0, 3);
+  public getShipCountry(ship: MTShipData) {
+    const prefix = +`${ship.shiP_ID}`.substring(0, 3);
     console.log(prefix);
     return isNaN(prefix) ? '' : midCountryMap[prefix];
   }
 
-  public getShipType(ship: FocusedShipPoint) {
-    if (!ship.shipType) {
+  public getShipType(ship: MTShipData) {
+    if (!ship.shiptype) {
       return 'Unknown';
     }
-    return ShipTypes[+ship.shipType] ?? 'Unknown';
+    return ShipTypes[+ship.shiptype] ?? 'Unknown';
   }
 }

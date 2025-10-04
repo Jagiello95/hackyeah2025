@@ -1,5 +1,27 @@
 <!-- <div class="card p-3" [class.init]="init"></div> -->
-<div class="card-container card-container--col">
-  <div class="card p-3" [class.init]="init"></div>
-  <div class="card p-3" [class.init]="init"></div>
+<div class="card-container card-container--col"></div>
+<div class="card-container card-container--col flex-2">
+  @for (alert of alerts; track alert.lat) {
+  <div
+    class="card p-1"
+    [class.init]="init"
+    [class.card--danger]="alert.alerT_TYPE === 'DANGER'"
+    [class.card--warning]="alert.alerT_TYPE === 'WARNING'"
+    (click)="onCardClick(alert)"
+  >
+    <mat-icon
+      class="login-icon"
+      [class.init]="init"
+      [class.danger]="alert.alerT_TYPE === 'DANGER'"
+      [class.warning]="alert.alerT_TYPE === 'WARNING'"
+      >account_circle</mat-icon
+    >
+    <div class="card-content">
+      <div class="label">Threat</div>
+      {{ alert.alerT_TYPE }}
+      <div class="label">Position</div>
+      <div class="label">Description: {{ alert.reason }}</div>
+    </div>
+  </div>
+  }
 </div>

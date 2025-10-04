@@ -15,6 +15,7 @@ import { Store } from '../../services/store';
 import { Sidebar } from '../sidebar/sidebar';
 import { AsyncPipe } from '@angular/common';
 import { FocusedShipPoint } from '../../models/focused-ship-point.model';
+import * as cables from './cable.json';
 
 @Component({
   selector: 'app-map',
@@ -30,11 +31,12 @@ export class MapComponent {
   protected toggle$ = new BehaviorSubject(false);
   map!: maplibregl.Map;
 
-  protected marineTraffic = new FormControl(false);
+  protected marineTraffic = new FormControl(true);
   protected mock = new FormControl(false);
   protected trackShips = new FormControl(false);
 
   protected countMap = new Map<number, number>();
+  protected cablesColor = '#5a647c';
 
   protected init = false;
   style: any;
@@ -44,14 +46,19 @@ export class MapComponent {
 
   private shipsMap = new Map();
 
+  private subMarineCables = JSON.parse(JSON.stringify(cables));
+
+  private activeAlerts: maplibregl.Marker[] = [];
+
   ngOnInit() {
     setTimeout(() => {
       this.init = true;
+      this.loadMarineTraffic();
     }, initBounceTimeout);
 
-    this.marineTraffic.valueChanges.subscribe((shouldLoad: boolean | null) => {
-      shouldLoad ? this.loadMarineTraffic() : this.removeMarineTraffic();
-    });
+    // this.marineTraffic.valueChanges.subscribe((shouldLoad: boolean | null) => {
+    //   shouldLoad ? this.loadMarineTraffic() : this.removeMarineTraffic();
+    // });
 
     this.mock.valueChanges.subscribe((shouldMock: boolean | null) => {
       this.store.shouldMockData$.next(!!shouldMock);
@@ -97,6 +104,7 @@ export class MapComponent {
         'https://upload.wikimedia.org/wikipedia/commons/7/7c/201408_cat.png'
       );
       this.map.addImage('cat', image.data);
+      this.addCables();
       this.map.addSource('point', {
         type: 'geojson',
         data: {
@@ -122,8 +130,10 @@ export class MapComponent {
   private loadMarineTraffic(): void {
     this.nav.isLoading$.next(true);
     const data: MapShipPoint[] = [];
-    this.api.fetchShips().subscribe((res: MTShipData[]) => {
-      console.log(res.length);
+    this.store.shipData$.subscribe((res: MTShipData[] | null) => {
+      if (!res) {
+        return;
+      }
 
       this.map.addSource('ships', {
         type: 'geojson',
@@ -168,6 +178,10 @@ export class MapComponent {
         },
       });
       this.nav.isLoading$.next(false);
+
+      if (this.store.selectedAlert$.value) {
+        this.selectShip(this.store.selectedAlert$.value.shiP_ID);
+      }
     });
 
     this.registerShipClick();
@@ -244,10 +258,11 @@ export class MapComponent {
         coordinates: [ship.lon, ship.lat],
       },
       properties: {
+        id: ship.mmsi,
+
         data: {
+          id: ship.mmsi,
           mmsi: ship.mmsi,
-          // speed: ship.speed,
-          heading: ship.heading,
         },
       },
     }));
@@ -294,19 +309,23 @@ export class MapComponent {
     // el.style['border-top' as any] = `20px solid yellow`;
 
     // add marker to map
-    new maplibregl.Marker({ element: el }).setLngLat(coordinates).addTo(this.map);
+    this.activeAlerts.push(
+      new maplibregl.Marker({ element: el }).setLngLat(coordinates).addTo(this.map)
+    );
   }
 
   private registerShipClick(): void {
     console.log('hello');
     this.map.on('click', 'ships', (e: any) => {
-      console.log(e);
+      this.activeAlerts.forEach((marker: maplibregl.Marker) => {
+        marker.remove();
+      });
       const { lng, lat } = e.lngLat;
 
       console.log(lng, lat);
       const coordinates = e.features[0].geometry.coordinates.slice();
-      const data: string = e.features[0].properties['data'];
-      console.log(data);
+      const id: string = e.features[0].properties['id'];
+      console.log(id);
       // Ensure that if the map is zoomed out such that multiple
       // copies of the feature are visible, the popup appears
       // over the copy being pointed to.
@@ -314,15 +333,10 @@ export class MapComponent {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
       }
 
-      this.toggle$.next(true);
-      this.map.flyTo({
-        padding: { right: 15 * 25 },
-        center: coordinates,
-        zoom: 4,
-      });
-
-      this.addSonarElement(coordinates);
-      this.store.focusedShip$.next(JSON.parse(data));
+      const ship = this.findShipById(id);
+      if (ship) {
+        this.selectShip(ship.shiP_ID, coordinates);
+      }
 
       // new maplibregl.Popup().setLngLat(coordinates).setHTML(description).addTo(this.map);
     });
@@ -372,6 +386,7 @@ export class MapComponent {
         coordinates: [ship.lng, ship.lat],
       },
       properties: {
+        id: ship.mmsi,
         threatLevel: this.assessThreatLevel(ship),
         data: {
           mmsi: ship.mmsi,
@@ -385,13 +400,71 @@ export class MapComponent {
       },
     }));
 
-    console.log(this.countMap.entries());
-
     const geojson = {
       type: 'FeatureCollection',
       features,
     };
 
     (this.map.getSource('ships') as maplibregl.GeoJSONSource).setData(geojson as any);
+    console.log('selected alert', this.store.selectedAlert$.value);
+    if (this.store.selectedAlert$.value) {
+      const ship = this.findShipById(this.store.selectedAlert$.value.shiP_ID);
+      console.log('found ship', ship);
+      if (!ship) {
+        return;
+      }
+      this.toggle$.next(true);
+      this.map.flyTo({
+        padding: { right: 15 * 25 },
+        center: [ship?.lon, ship?.lat],
+        zoom: 4,
+      });
+    }
+  }
+
+  public findShipById(id: string): MTShipData | null {
+    if (!this.store.shipData$.value) {
+      return null;
+    }
+
+    const selectedShip = this.store.shipData$.value.find((ship: MTShipData) => {
+      return ship.shiP_ID === id;
+    });
+
+    return selectedShip ? selectedShip : null;
+  }
+
+  public selectShip(id: string, coordinates?: [number, number]): void {
+    const ship = this.findShipById(id);
+    this.toggle$.next(true);
+
+    if (!ship) {
+      return;
+    }
+    this.map.flyTo({
+      padding: { right: 15 * 25 },
+      center: coordinates ?? [ship.lon, ship.lat],
+      zoom: 4,
+    });
+
+    this.addSonarElement(coordinates ?? [ship.lon, ship.lat]);
+    this.store.focusedShip$.next(ship);
+  }
+
+  public addCables(): void {
+    this.map.addSource('submarine-cables', {
+      type: 'geojson',
+      data: this.subMarineCables, // Or your local/data URL
+    });
+
+    this.map.addLayer({
+      id: 'cable-lines',
+      type: 'line',
+      source: 'submarine-cables',
+      paint: {
+        'line-color': `${this.cablesColor}`, // Example color
+        'line-width': 1,
+      },
+    });
   }
 }
