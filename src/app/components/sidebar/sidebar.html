@@ -17,7 +17,7 @@
     <div class="sidebar__content__label">
       <div class="label">Ship Name</div>
 
-      <div class="value">{{ selectedShip.shipName }}</div>
+      <div class="value">{{ selectedShip.shipname }}</div>
     </div>
     @if(getShipCountry(selectedShip)) {
 
@@ -30,7 +30,7 @@
     <div class="sidebar__content__label">
       <div class="label">Threat Level</div>
 
-      <div class="value">{{ selectedShip.threatLevel }}</div>
+      <div class="value">{{ getThreatLevel(selectedShip) }}</div>
     </div>
   </div>
   }

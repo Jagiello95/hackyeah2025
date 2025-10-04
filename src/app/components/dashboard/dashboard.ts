@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { initBounceTimeout } from '../constants';
+import { alertShipIds, initBounceTimeout } from '../constants';
 import { Navigation } from '../../services/navigation';
 import { filter, take } from 'rxjs';
 import { API } from '../../services/api';
@@ -48,5 +48,13 @@ export class Dashboard {
   public onCardClick(alert: AlertType) {
     this.store.selectedAlert$.next(alert);
     this.router.navigate(['/map']);
+  }
+
+  public getIcon(alert: AlertType): string {
+    if (alert.alerT_TYPE === 'DANGER') {
+      return 'crisis_alert';
+    }
+
+    return 'earthquake';
   }
 }

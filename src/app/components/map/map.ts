@@ -179,8 +179,18 @@ export class MapComponent {
       });
       this.nav.isLoading$.next(false);
 
-      if (this.store.selectedAlert$.value) {
-        this.selectShip(this.store.selectedAlert$.value.shiP_ID);
+      const alert = this.store.selectedAlert$.value;
+
+      if (alert) {
+        this.selectShip(alert.shiP_IDS[0]);
+      }
+
+      if (alert && alert.shiP_IDS.length > 1) {
+        this.connectTwoPoints(alert?.shiP_IDS[0], alert?.shiP_IDS[1]);
+      }
+
+      if (alert && alert.historicalPosition) {
+        this.handleHistoricalPos(alert.shiP_IDS[0], alert['historicalPosition']);
       }
     });
 
@@ -189,7 +199,7 @@ export class MapComponent {
 
   private startWS(): void {
     // this.closeWs();
-    this.ws = new WebSocket(this.api.getWSPath());
+    this.ws = new WebSocket('wss://good-vibes-realtime-ships-api.onrender.com');
 
     this.ws.onopen = () => console.log('Connected to local WS bridge');
 
@@ -275,7 +285,10 @@ export class MapComponent {
     (this.map.getSource('ships') as maplibregl.GeoJSONSource).setData(geojson as any);
   }
 
-  private addSonarElement(coordinates: [number, number]): void {
+  private addSonarElement(
+    coordinates: [number, number],
+    color: 'red' | 'yellow' | 'gray' = 'red'
+  ): void {
     // create a DOM element for the marker
     const el = document.createElement('div');
     el.classList.add('marker');
@@ -292,6 +305,7 @@ export class MapComponent {
       el2.appendChild(elInner);
       elInner.classList.add('sonar-wave');
       elInner.classList.add(`sonar-wave-${i}`);
+      elInner.classList.add(`sonar-wave--${color}`);
     });
 
     // el.className = 'marker';
@@ -315,17 +329,14 @@ export class MapComponent {
   }
 
   private registerShipClick(): void {
-    console.log('hello');
     this.map.on('click', 'ships', (e: any) => {
       this.activeAlerts.forEach((marker: maplibregl.Marker) => {
         marker.remove();
       });
       const { lng, lat } = e.lngLat;
 
-      console.log(lng, lat);
       const coordinates = e.features[0].geometry.coordinates.slice();
       const id: string = e.features[0].properties['id'];
-      console.log(id);
       // Ensure that if the map is zoomed out such that multiple
       // copies of the feature are visible, the popup appears
       // over the copy being pointed to.
@@ -335,6 +346,7 @@ export class MapComponent {
 
       const ship = this.findShipById(id);
       if (ship) {
+        console.log('clicked ship', ship);
         this.selectShip(ship.shiP_ID, coordinates);
       }
 
@@ -378,7 +390,6 @@ export class MapComponent {
   private loadData(data: MapShipPoint[]): void {
     this.countMap.clear();
 
-    console.log(data);
     const features = data.map((ship) => ({
       type: 'Feature',
       geometry: {
@@ -406,10 +417,8 @@ export class MapComponent {
     };
 
     (this.map.getSource('ships') as maplibregl.GeoJSONSource).setData(geojson as any);
-    console.log('selected alert', this.store.selectedAlert$.value);
     if (this.store.selectedAlert$.value) {
-      const ship = this.findShipById(this.store.selectedAlert$.value.shiP_ID);
-      console.log('found ship', ship);
+      const ship = this.findShipById(this.store.selectedAlert$.value.shiP_IDS[0]);
       if (!ship) {
         return;
       }
@@ -444,7 +453,7 @@ export class MapComponent {
     this.map.flyTo({
       padding: { right: 15 * 25 },
       center: coordinates ?? [ship.lon, ship.lat],
-      zoom: 4,
+      zoom: 6,
     });
 
     this.addSonarElement(coordinates ?? [ship.lon, ship.lat]);
@@ -464,6 +473,104 @@ export class MapComponent {
       paint: {
         'line-color': `${this.cablesColor}`, // Example color
         'line-width': 1,
+      },
+    });
+  }
+
+  public connectTwoPoints(shipId1: any, shipId2: any): void {
+    const ship1 = this.findShipById(shipId1);
+    const ship2 = this.findShipById(shipId2);
+
+    console.log(ship1, ship2);
+
+    if (!ship1 || !ship2) {
+      return;
+    }
+
+    [ship1, ship2].forEach((s: MTShipData) => {
+      if (
+        this.activeAlerts.some((m: maplibregl.Marker) => {
+          const lngLat = m.getLngLat();
+
+          return lngLat.lat !== s.lat || lngLat.lng !== s.lon;
+        })
+      ) {
+        this.addSonarElement([s.lon, s.lat]);
+      }
+    });
+    console.log('here');
+    console.log([ship1.lat, ship1.lon], [ship2.lat, ship2.lon]);
+    const routeGeoJSON: any = {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [ship1.lon, ship1.lat],
+          [ship2.lon, ship2.lat],
+        ], // Example: [[-74.0060, 40.7128], [-73.9352, 40.7306]]
+      },
+    };
+
+    this.map.addSource('route-source', {
+      type: 'geojson',
+      data: routeGeoJSON,
+    });
+
+    this.map.addLayer({
+      id: 'route-layer',
+      type: 'line',
+      source: 'route-source',
+      layout: {
+        'line-join': 'round', // Optional: make lines round at joins
+        'line-cap': 'round', // Optional: make lines round at the ends
+      },
+      paint: {
+        'line-color': 'gray', // Color of the line
+        'line-width': 1, // Width of the line
+        'line-dasharray': [2, 2], // pattern: [dash length, gap length]
+      },
+    });
+  }
+
+  public handleHistoricalPos(shipId: string, historicalPosition: [number, number]): void {
+    const ship = this.findShipById(shipId);
+
+    if (!ship) {
+      return;
+    }
+
+    this.addSonarElement([ship.lon, ship.lat]);
+
+    const routeGeoJSON: any = {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [ship.lon, ship.lat],
+          [historicalPosition[0], historicalPosition[1]],
+        ], // Example: [[-74.0060, 40.7128], [-73.9352, 40.7306]]
+      },
+    };
+
+    this.map.addSource('route-source', {
+      type: 'geojson',
+      data: routeGeoJSON,
+    });
+
+    this.map.addLayer({
+      id: 'route-layer',
+      type: 'line',
+      source: 'route-source',
+      layout: {
+        'line-join': 'round', // Optional: make lines round at joins
+        'line-cap': 'round', // Optional: make lines round at the ends
+      },
+      paint: {
+        'line-color': 'gray', // Color of the line
+        'line-width': 1, // Width of the line
+        'line-dasharray': [2, 2], // pattern: [dash length, gap length]
       },
     });
   }

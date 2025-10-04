@@ -10,15 +10,14 @@
     (click)="onCardClick(alert)"
   >
     <mat-icon
-      class="login-icon"
+      class="login-icon material-symbols-outlined"
       [class.init]="init"
       [class.danger]="alert.alerT_TYPE === 'DANGER'"
       [class.warning]="alert.alerT_TYPE === 'WARNING'"
-      >account_circle</mat-icon
+      >{{ getIcon(alert) }}</mat-icon
     >
     <div class="card-content">
       <div class="label">Threat</div>
-      {{ alert.alerT_TYPE }}
       <div class="label">Position</div>
       <div class="label">Description: {{ alert.reason }}</div>
     </div>

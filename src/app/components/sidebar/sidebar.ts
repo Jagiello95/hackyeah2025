@@ -31,7 +31,6 @@ export class Sidebar {
   ngOnInit(): void {
     this.store.focusedShip$.subscribe((ship: MTShipData | null) => {
       this.selectedShip = ship;
-      console.log('selectedShip', this.selectedShip);
     });
   }
 
@@ -43,7 +42,6 @@ export class Sidebar {
 
   public getShipCountry(ship: MTShipData) {
     const prefix = +`${ship.shiP_ID}`.substring(0, 3);
-    console.log(prefix);
     return isNaN(prefix) ? '' : midCountryMap[prefix];
   }
 
@@ -52,5 +50,12 @@ export class Sidebar {
       return 'Unknown';
     }
     return ShipTypes[+ship.shiptype] ?? 'Unknown';
+  }
+
+  public getThreatLevel(ship: MTShipData) {
+    if (ship.shiP_ID === '') {
+      return 'high';
+    }
+    return 'medium';
   }
 }

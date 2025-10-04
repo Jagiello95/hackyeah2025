@@ -5,6 +5,7 @@ import { MTShipData } from '../models/mt-ship-data.model';
 import { of } from 'rxjs';
 import { MOCK_DATA } from '../components/map/mock-data';
 import { Store } from './store';
+import { MOCK_ALERTS } from '../components/map/mock-alerts';
 
 @Injectable({
   providedIn: 'root',
@@ -22,9 +23,9 @@ export class API {
   }
 
   public fetchAlerts(): Observable<any[]> {
-    // if (this.store.shouldMockData$.value) {
-    //   return of(MOCK_DATA);
-    // }
+    if (true) {
+      return of(MOCK_ALERTS);
+    }
     return this.httpClient.get<any[]>(`${this.API}/alerts`);
   }
 

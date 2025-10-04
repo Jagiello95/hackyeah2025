@@ -1,5 +1,6 @@
 export interface AlertType {
-  alerT_TYPE: 'WARNING';
-  shiP_ID: '728090';
-  reason: 'Illegal fishing';
+  alerT_TYPE: 'WARNING' | 'DANGER';
+  shiP_IDS: string[];
+  reason: string;
+  historicalPosition?: [number, number];
 }
