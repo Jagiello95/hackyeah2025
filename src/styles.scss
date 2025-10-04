@@ -255,3 +255,7 @@ body {
   flex: 1;
   background-color: var(--primary-deep);
 }
+
+.maplibregl-ctrl {
+  display: none;
+}
