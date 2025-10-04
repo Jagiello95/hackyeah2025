@@ -1,4 +1,4 @@
-<div class="nav-option nav-option--menu">
+<div class="nav-option nav-option--menu" (click)="onMenuClick()">
   <mat-icon
     class="nav-option__icon"
     [class.material-symbols-outlined]="true"
@@ -12,6 +12,7 @@
 
   <div
     class="nav-option"
+    (click)="redirect(item.route)"
     [class.active-link]="isSelected(item.route)"
     [class.click-link]="item.route === clickRoute"
   >

@@ -62,3 +62,162 @@ body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
+
+.route-container {
+  // view-transition-name: login-form;
+  display: flex;
+  width: 100%;
+  // overflow-y: scroll;
+  background-color: var(--primary-deep);
+  // height: calc(100vh - 4px);
+  position: relative;
+  height: 100%;
+}
+
+.route {
+  margin-left: 3rem;
+  transition: margin var(--transition-md);
+  &.is-toggled {
+    margin-left: 15rem !important;
+  }
+}
+
+// --primary: #38435c; // or any global you wish to share with components
+// --accent: #45516e;
+
+// --primary: #152238; // or any global you wish to share with components
+// --accent: #23395d;
+
+// Dark Slate Blue (Base) → #38435c - For headers, navigation, or dark backgrounds.
+
+// Muted Indigo (Base) → #45516e - For body background, cards, or secondary sections.
+
+// Soft Gray Neutral → #e0e1e6 - For backgrounds, dividers, or subtle contrast.
+
+// Warm Beige Neutral → #d9c7b8 - Adds warmth, great for highlights or secondary UI areas.
+
+// Mint Green (Accent) → #88d498 - Pops for buttons, links, highlights.
+
+// Deep Charcoal → #232933 - For text, contrast, or footer areas.
+
+//--primary: #38435c;
+// --panel: #45516e;
+// --gray: #e0e1e6;
+// --neutral: #d9c7b8;
+// --accent: #88d498;
+// --dark: #232933;
+
+:root {
+  --primary-deep: #2a3347;
+  --primary: #38435c;
+  --secondary-deep: #5a647c;
+  --panel: #45516e;
+  --gray: #e0e1e6;
+  --neutral: #d9c7b8;
+  --accent: #88d498;
+  --dark: #232933;
+  --gradient-light: #b6bcd6;
+  --danger: #d45d5d;
+  // --gradient-card: linear-gradient(to right bottom, #38435c, #3a455f, #3d4862, #3f4a66, #424d69, #4c5673, #56607d, #606a87, #757e9a, #8a92ae, #a0a7c2, #b6bcd6);
+  --gradient-card: linear-gradient(
+    to right bottom,
+    #45516e,
+    #495470,
+    #4d5873,
+    #515b75,
+    #555f78,
+    #5e6881,
+    #677089,
+    #707992,
+    #8189a3,
+    #929ab3,
+    #a4abc5,
+    #b6bcd6
+  );
+  // --primary: #152238; // or any global you wish to share with components
+  // --accent: #23395d;
+  // --teal: coral;
+  --secondary: cyan;
+
+  --card-anim-dur: 0.3s;
+
+  // --panel: #1c2e4a;
+  --highlighted: rgb(85, 76, 104);
+  --header-height: 0;
+  --mat-sys-surface-container: var(--primary);
+  --mat-sys-on-surface: var(--secondary);
+  --mat-form-field-filled-active-indicator-color: rgb(85, 76, 104);
+  --card-gradient: linear-gradient(
+    to left bottom,
+    #55607c,
+    #535e7c,
+    #515d7b,
+    #505b7b,
+    #4e597a,
+    #4b5678,
+    #495475,
+    #465173,
+    #414e6f,
+    #3c4a6b,
+    #384766,
+    #334462
+  );
+
+  --primary-gradient: linear-gradient(
+    to top,
+    #253149,
+    #27324b,
+    #28344e,
+    #2a3550,
+    #2c3652,
+    #2e3855,
+    #303a57,
+    #323c5a,
+    #353f5e,
+    #374162,
+    #3a4466,
+    #3d476a
+  );
+  --primary-gradient-reversed: linear-gradient(
+    to bottom,
+    #253149,
+    #27324b,
+    #28344e,
+    #2a3550,
+    #2c3652,
+    #2e3855,
+    #303a57,
+    #323c5a,
+    #353f5e,
+    #374162,
+    #3a4466,
+    #3d476a
+  );
+  --default-border-radius: 0.4rem;
+  // --mat-sys-secondary-container: var(--primary);
+  background-image: var(--primary-gradient);
+
+  --box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.22), 0px 6px 10px 0px rgba(0, 0, 0, 0.24),
+    0px 1px 18px 0px rgba(0, 0, 0, 0.22);
+  --box-shadow-heavy: 0px 3px 5px -1px rgba(0, 0, 0, 0.32), 0px 6px 10px 0px rgba(0, 0, 0, 0.34),
+    0px 1px 18px 0px rgba(0, 0, 0, 0.32);
+  --inset-box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.22) inset,
+    0px 6px 10px 0px rgba(0, 0, 0, 0.24) inset, 0px 1px 18px 0px rgba(0, 0, 0, 0.22) inset;
+  
+    --home-error-icon-text-shadow:    text-shadow: 0 0 2px var(--danger), 0 0 1px var(--danger);
+
+    --home-accent-icon-text-shadow:    text-shadow: 0 0 2px var(--accent), 0 0 1px var(--accent);
+
+
+  --page-spacing-md: 3rem;
+
+  --weight-bold: 500;
+  --letter-spacing: 2px;
+
+  --transition-extra: 0.2s;
+  --transition-fast: 0.3s;
+  --transition-md: 0.5s;
+  --spacing-sm: 2rem;
+
+  --header-md: 2rem;
+}

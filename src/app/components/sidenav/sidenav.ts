@@ -34,6 +34,11 @@ export class Sidenav implements OnInit {
 
   protected menuOptions = [
     {
+      icon: 'dashboard',
+      label: 'dashboard',
+      route: '/',
+    },
+    {
       icon: 'map_search',
       label: 'map',
       route: '/map',
@@ -41,12 +46,28 @@ export class Sidenav implements OnInit {
     },
   ];
 
-  ngOnInit(): void {}
-
+  ngOnInit(): void {
+    this.navigation.menuToggle$.subscribe((val: boolean) => {
+      console.log(2);
+      this.isExpanded = val;
+    });
+  }
   public isSelected(route: string): boolean {
     if (route === '/add') {
       return window.location.href.includes(route);
     }
     return route === window.location.pathname;
+  }
+
+  public onMenuClick(): void {
+    this.navigation.menuToggle$.next(!this.navigation.menuToggle$.value);
+  }
+
+  public redirect(path: string, logout = false): void {
+    this.clickRoute = path;
+    setTimeout(() => {
+      this.clickRoute = '';
+    }, 1000);
+    this.navigation.redirect$.next(path);
   }
 }

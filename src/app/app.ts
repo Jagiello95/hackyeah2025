@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { RouterModule, RouterOutlet } from '@angular/router';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,6 +9,7 @@ import { AsyncPipe } from '@angular/common';
 import { Navigation } from './services/navigation';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Sidenav } from './components/sidenav/sidenav';
+import { concatMap, map, timer } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -30,4 +31,29 @@ export class App {
   protected readonly title = signal('hackyeah2025');
 
   protected navigation = inject(Navigation);
+  protected router = inject(Router);
+
+  private assignRedirection(): void {
+    this.navigation.redirect$
+      .pipe(concatMap((url) => timer(this.getExitDelay(url)).pipe(map(() => url))))
+      .subscribe((path: string) => {
+        this.router.navigate([path]);
+      });
+  }
+
+  ngOnInit(): void {
+    this.assignRedirection();
+  }
+
+  private getExitDelay(route: string): number {
+    if (window.location.href.includes('dashboard')) {
+      return 800;
+    }
+
+    if (window.location.href.includes('map')) {
+      return 500;
+    }
+
+    return 500;
+  }
 }
