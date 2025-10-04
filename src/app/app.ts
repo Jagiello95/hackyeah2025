@@ -8,6 +8,7 @@ import { MatListModule } from '@angular/material/list';
 import { AsyncPipe } from '@angular/common';
 import { Navigation } from './services/navigation';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { Sidenav } from './components/sidenav/sidenav';
 
 @Component({
   selector: 'app-root',
@@ -19,6 +20,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     MatListModule,
     RouterModule,
     MatProgressBarModule,
+    Sidenav,
     AsyncPipe,
   ],
   templateUrl: './app.html',

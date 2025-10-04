@@ -1,0 +1,51 @@
+<div class="nav-option nav-option--menu">
+  <mat-icon
+    class="nav-option__icon"
+    [class.material-symbols-outlined]="true"
+    aria-label="Example home icon"
+    [fontIcon]="'menu'"
+  ></mat-icon>
+</div>
+
+<div class="menu-icons">
+  @for (item of menuOptions; track item.label) {
+
+  <div
+    class="nav-option"
+    [class.active-link]="isSelected(item.route)"
+    [class.click-link]="item.route === clickRoute"
+  >
+    <!-- [class.disabled]="!api.login$.value" -->
+    <mat-icon
+      class="nav-option__icon"
+      [class.material-symbols-outlined]="item.symbols"
+      aria-label="Example home icon"
+      [fontIcon]="item.icon"
+    ></mat-icon>
+
+    @if(isExpanded) {
+    <span class="nav-option__label label-emission">
+      {{ item.label | uppercase }}
+    </span>
+    }
+  </div>
+  <!-- <mat-divider></mat-divider> -->
+
+  }
+</div>
+
+<!-- [matMenuTriggerFor]="menu" -->
+<div class="nav-option nav-option--user" [class.active-link]="'true'">
+  <mat-icon
+    class="nav-option__icon"
+    [class.material-symbols-outlined]="true"
+    aria-label="Example home icon"
+    [fontIcon]="'account_circle'"
+  ></mat-icon>
+
+  @if(isExpanded) {
+  <span class="nav-option__label label-emission">
+    {{ 'Account' | uppercase }}
+  </span>
+  }
+</div>

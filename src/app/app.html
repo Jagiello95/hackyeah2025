@@ -4,4 +4,11 @@
   [color]="(navigation.isLoading$ | async) ? 'loading' : 'not-loading'"
 ></mat-progress-bar>
 
-<router-outlet></router-outlet>
+<div class="content mobile">
+  <app-sidenav class="mobile"> </app-sidenav>
+  <div class="route-container">
+    <div class="route" [class.is-toggled]="navigation.menuToggle$ | async">
+      <router-outlet #routerOutlet="outlet"></router-outlet>
+    </div>
+  </div>
+</div>
