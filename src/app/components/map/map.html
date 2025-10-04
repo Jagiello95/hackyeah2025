@@ -1,3 +1,7 @@
+<div class="map-container" [class.init]="init">
+  <div id="map" style="flex: 1" class="map-content map" [class.init]="init"></div>
+</div>
+
 <div class="map-buttons">
   <button mat-raised-button class="top-button" (click)="toggle$.next(!toggle$.value)">
     Sidebar

@@ -1,3 +1,14 @@
+:host {
+  display: flex;
+  flex: 1;
+}
+
+#map {
+  position: relative;
+  height: inherit;
+  width: inherit;
+}
+
 .map-buttons {
   top: 3rem;
   position: fixed;
@@ -15,4 +26,70 @@
     background-color: var(--panel) !important;
     color: white !important;
   }
+}
+
+.map-container {
+  display: flex;
+  transition: width var(--transition-md) ease-in-out, margin var(--transition-md) ease-in-out,
+    background-color var(--transition-md) ease-in, opacity var(--transition-md) ease-in;
+  // box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius);
+  background-color: var(--panel);
+  display: flex;
+  flex: 3;
+  margin: 3rem;
+  background-color: var(--panel);
+
+  .map-content {
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+    border-radius: var(--border-radius);
+  }
+
+  &.init {
+    margin: 0;
+
+    .map-content {
+      opacity: 1;
+    }
+  }
+}
+
+.map-container {
+  position: relative;
+  overflow: hidden;
+}
+.map-container::before,
+.map-container::after,
+.map::before,
+.map::after {
+  content: '';
+  position: absolute;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 1);
+  z-index: 1;
+  background-color: var(--primary-deep);
+}
+.map-container::before {
+  top: -5px;
+  left: 0;
+  right: 0;
+  height: 5px;
+}
+.map-container::after {
+  right: -5px;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+}
+.map::before {
+  bottom: -5px;
+  left: 0;
+  right: 0;
+  height: 5px;
+}
+.map::after {
+  left: -5px;
+  top: 0;
+  bottom: 0;
+  width: 5px;
 }
