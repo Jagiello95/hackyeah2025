@@ -22,6 +22,6 @@ export class API {
   }
 
   public getWSPath(): string {
-    return 'ws://https://goodvibesapi-dsetebgfaugxcfa2.westeurope-01.azurewebsites.net/ws';
+    return 'ws://goodvibesapi-dsetebgfaugxcfa2.westeurope-01.azurewebsites.net/ws';
   }
 }

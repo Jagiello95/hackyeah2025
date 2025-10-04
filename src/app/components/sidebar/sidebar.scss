@@ -1,0 +1,18 @@
+:host {
+  background-color: var(--primary-deep);
+  box-sizing: border-box;
+  color: var(--secondary);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  right: 0;
+  top: var(--header-height);
+  transition: width 0.5s;
+  width: 0rem;
+
+  .sidebar__container {
+    padding: 1.5rem 3rem;
+  }
+}

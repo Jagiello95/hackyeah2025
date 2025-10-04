@@ -12,10 +12,12 @@ import * as data from './style.json';
 import { MTShipData } from '../../models/mt-ship-data.model';
 import { MapShipPoint } from '../../models/map-ship-point.model';
 import { Store } from '../../services/store';
+import { Sidebar } from '../sidebar/sidebar';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-map',
-  imports: [ReactiveFormsModule, MatSlideToggle, MatButtonModule],
+  imports: [ReactiveFormsModule, MatSlideToggle, MatButtonModule, Sidebar, AsyncPipe],
   templateUrl: './map.html',
   styleUrl: './map.scss',
 })
@@ -137,8 +139,8 @@ export class MapComponent {
       paint: {
         'circle-radius': 4,
         'circle-color': 'lightcoral',
-        'circle-stroke-color': 'black',
-        'circle-stroke-width': 0.2,
+        'circle-stroke-color': 'gray',
+        'circle-stroke-width': 0.8,
       },
     });
 

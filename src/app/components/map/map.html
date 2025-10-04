@@ -2,6 +2,12 @@
   <div id="map" style="flex: 1" class="map-content map" [class.init]="init"></div>
 </div>
 
+<app-sidebar [toggled]="!!(toggle$ | async)" [fixed]="true">
+  <h1 class="sidebar__header">Hello</h1>
+
+  <div class="divider"></div>
+</app-sidebar>
+
 <div class="map-buttons">
   <button mat-raised-button class="top-button" (click)="toggle$.next(!toggle$.value)">
     Sidebar
