@@ -15,4 +15,22 @@
   .sidebar__container {
     padding: 1.5rem 3rem;
   }
+
+  .sidebar__content {
+    display: flex;
+    flex-direction: column;
+
+    &__label {
+      margin-bottom: 1rem;
+    }
+  }
+
+  .label {
+    font-size: 0.7rem;
+    font-weight: bolder;
+  }
+
+  .value {
+    word-break: break-all;
+  }
 }

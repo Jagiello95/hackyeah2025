@@ -2,11 +2,36 @@
   <!-- <ng-content></ng-content> -->
 
   @if(selectedShip) {
-  <span>{{ selectedShip.mmsi }}</span>
-  <span>{{ getShipCountry(selectedShip) }}</span>
-  <!-- <span>{{ selectedShip.lat }}</span>
-  <span>{{ selectedShip.lng }}</span> -->
-  <span>{{ selectedShip.threatLevel }}</span>
+  <div class="sidebar__content">
+    <div class="sidebar__content__label">
+      <div class="label">MMSI</div>
 
+      <div class="value">{{ selectedShip.mmsi }}</div>
+    </div>
+
+    <div class="sidebar__content__label">
+      <div class="label">Ship Type</div>
+
+      <div class="value">{{ getShipType(selectedShip) }}</div>
+    </div>
+    <div class="sidebar__content__label">
+      <div class="label">Ship Name</div>
+
+      <div class="value">{{ selectedShip.shipName }}</div>
+    </div>
+    @if(getShipCountry(selectedShip)) {
+
+    <div class="sidebar__content__label">
+      <div class="label">Country</div>
+      <div class="value">{{ getShipCountry(selectedShip) }}</div>
+    </div>
+    }
+
+    <div class="sidebar__content__label">
+      <div class="label">Threat Level</div>
+
+      <div class="value">{{ selectedShip.threatLevel }}</div>
+    </div>
+  </div>
   }
 </div>

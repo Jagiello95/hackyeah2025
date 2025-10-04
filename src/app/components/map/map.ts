@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Navigation } from '../../services/navigation';
-import { BehaviorSubject, filter, take } from 'rxjs';
+import { BehaviorSubject, filter, take, tap } from 'rxjs';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatButtonModule } from '@angular/material/button';
 import { initBounceTimeout } from '../constants';
@@ -120,6 +120,7 @@ export class MapComponent {
   }
 
   private loadMarineTraffic(): void {
+    this.nav.isLoading$.next(true);
     const data: MapShipPoint[] = [];
     this.api.fetchShips().subscribe((res: MTShipData[]) => {
       console.log(res.length);
@@ -138,6 +139,7 @@ export class MapComponent {
           lng: unit.lon,
           mmsi: unit.shiP_ID,
           shipType: unit.shiptype,
+          shipName: unit.shipname,
         });
       });
 
@@ -165,6 +167,7 @@ export class MapComponent {
           ],
         },
       });
+      this.nav.isLoading$.next(false);
     });
 
     this.registerShipClick();
@@ -302,7 +305,7 @@ export class MapComponent {
 
       console.log(lng, lat);
       const coordinates = e.features[0].geometry.coordinates.slice();
-      const data: FocusedShipPoint = e.features[0].properties['data'];
+      const data: string = e.features[0].properties['data'];
       console.log(data);
       // Ensure that if the map is zoomed out such that multiple
       // copies of the feature are visible, the popup appears
@@ -319,7 +322,7 @@ export class MapComponent {
       });
 
       this.addSonarElement(coordinates);
-      this.store.focusedShip$.next(data);
+      this.store.focusedShip$.next(JSON.parse(data));
 
       // new maplibregl.Popup().setLngLat(coordinates).setHTML(description).addTo(this.map);
     });
@@ -361,7 +364,7 @@ export class MapComponent {
   private loadData(data: MapShipPoint[]): void {
     this.countMap.clear();
 
-    console.log(data.length);
+    console.log(data);
     const features = data.map((ship) => ({
       type: 'Feature',
       geometry: {
@@ -374,6 +377,7 @@ export class MapComponent {
           mmsi: ship.mmsi,
           shipType: `${ship.shipType}`,
           threatLevel: this.assessThreatLevel(ship),
+          shipName: ship.shipName,
         } as FocusedShipPoint,
 
         // speed: ship.speed,

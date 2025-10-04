@@ -3,4 +3,5 @@ export interface MapShipPoint {
   lng: number;
   mmsi: string;
   shipType: number;
+  shipName: string;
 }

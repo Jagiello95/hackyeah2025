@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { initBounceTimeout } from '../constants';
 import { Navigation } from '../../services/navigation';
 import { filter, take } from 'rxjs';
+import { API } from '../../services/api';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,6 +13,10 @@ import { filter, take } from 'rxjs';
 export class Dashboard {
   protected init = false;
   protected navigation = inject(Navigation);
+  protected api = inject(API);
+
+  protected alerts: any[] = [];
+
   ngOnInit(): void {
     setTimeout(() => {
       this.init = true;
@@ -25,5 +30,10 @@ export class Dashboard {
       .subscribe(() => {
         this.init = false;
       });
+
+    this.api.fetchAlerts().subscribe((alerts) => {
+      this.alerts = alerts;
+      console.log(alerts);
+    });
   }
 }

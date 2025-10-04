@@ -21,6 +21,13 @@ export class API {
     return this.httpClient.get<MTShipData[]>(`${this.API}/ships`);
   }
 
+  public fetchAlerts(): Observable<any[]> {
+    // if (this.store.shouldMockData$.value) {
+    //   return of(MOCK_DATA);
+    // }
+    return this.httpClient.get<any[]>(`${this.API}/alerts`);
+  }
+
   public getWSPath(): string {
     return 'wss://goodvibesapi-dsetebgfaugxcfa2.westeurope-01.azurewebsites.net/ws';
   }
