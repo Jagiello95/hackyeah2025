@@ -1,1 +1,20 @@
-<p>map works!</p>
+<div class="map-buttons">
+  <button mat-raised-button class="top-button" (click)="toggle$.next(!toggle$.value)">
+    Sidebar
+  </button>
+  <button
+    mat-raised-button
+    class="top-button top-button__2"
+    (click)="nav.isLoading$.next(!nav.isLoading$.value)"
+  >
+    Loading
+  </button>
+  <mat-slide-toggle class="top-button top-button__3" [disableRipple]="true">
+    Submarine Cables
+  </mat-slide-toggle>
+
+  <!-- <button class="top-button top-button__3" (click)="onInit()">Connect</button> -->
+  <mat-slide-toggle class="top-button top-button__3" [disableRipple]="true">
+    Track Ships
+  </mat-slide-toggle>
+</div>
