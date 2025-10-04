@@ -286,6 +286,11 @@ body {
   width: 32px;
   height: 32px;
   border-radius: 9999px;
+
+  &--1 {
+  width: 16px;
+  height: 16px;
+  }
   // background-color: HSL(45, 100%, 50%);
         // transform: translate(-50%, -100%);
 
@@ -300,6 +305,12 @@ body {
             .sonar-wave-3 {
         display: none;
       }
+    }
+
+    &--single {
+          width: 12px;
+      height: 12px;
+
     }
   }
 
@@ -324,6 +335,10 @@ body {
 
       &--gray {
     background-color: var(--gray);
+  }
+
+        &--cyan {
+    background-color: cyan;
   }
 
   }

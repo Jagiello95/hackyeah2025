@@ -1,7 +1,9 @@
 export interface AlertType {
+  id?: number;
   alerT_TYPE: 'WARNING' | 'DANGER';
   shiP_IDS: string[];
   reason: string;
-  historicalPosition?: [number, number];
+  historicalPositions?: [number, number, boolean][];
   shouldDisplayTerritorialWaters?: boolean;
+  zoomLevel: number;
 }

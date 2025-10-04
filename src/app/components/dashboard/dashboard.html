@@ -1,7 +1,7 @@
 <!-- <div class="card p-3" [class.init]="init"></div> -->
 <div class="card-container card-container--col"></div>
 <div class="card-container card-container--col flex-2">
-  @for (alert of alerts; track alert.lat) {
+  @for (alert of alerts; track alert.id) {
   <div
     class="card p-1"
     [class.init]="init"

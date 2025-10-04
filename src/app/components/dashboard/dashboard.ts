@@ -40,7 +40,7 @@ export class Dashboard {
       });
 
     this.api.fetchAlerts().subscribe((alerts) => {
-      this.alerts = alerts;
+      this.alerts = alerts.map((alert, i) => ({ ...alert, id: i }));
       console.log(alerts);
     });
   }

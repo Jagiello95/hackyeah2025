@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Navigation } from '../../services/navigation';
-import { BehaviorSubject, filter, from, switchMap, take, tap, timer } from 'rxjs';
+import { BehaviorSubject, filter, from, fromEvent, map, switchMap, take, tap, timer } from 'rxjs';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatButtonModule } from '@angular/material/button';
 import { initBounceTimeout } from '../constants';
@@ -18,7 +18,6 @@ import { FocusedShipPoint } from '../../models/focused-ship-point.model';
 import * as cables from './cable.json';
 import * as turf from '@turf/turf';
 import { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
-import { waterTerritorial } from './water-territorial';
 
 @Component({
   selector: 'app-map',
@@ -47,7 +46,7 @@ export class MapComponent {
 
   protected ws: WebSocket | undefined;
 
-  private shipsMap = new Map();
+  private shipsMap = new Map<string, MapShipPoint>();
 
   private subMarineCables = JSON.parse(JSON.stringify(cables));
 
@@ -56,7 +55,7 @@ export class MapComponent {
   ngOnInit() {
     setTimeout(() => {
       this.init = true;
-      this.loadMarineTraffic();
+      // this.addPolygon();
     }, initBounceTimeout);
 
     // this.marineTraffic.valueChanges.subscribe((shouldLoad: boolean | null) => {
@@ -86,7 +85,10 @@ export class MapComponent {
   ngAfterViewInit() {
     setTimeout(() => {
       this.initMap();
-      this.updateMap();
+      setTimeout(() => {
+        this.updateMap();
+        this.loadMarineTraffic();
+      });
     }, this.afterViewTimeout);
   }
 
@@ -146,6 +148,14 @@ export class MapComponent {
         },
       });
 
+      this.map.addSource('ws-ships', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [],
+        },
+      });
+
       res.forEach((unit) => {
         data.push({
           lat: unit.lat,
@@ -180,6 +190,29 @@ export class MapComponent {
           ],
         },
       });
+
+      this.map.addLayer({
+        id: 'ws-ships',
+        type: 'circle',
+        source: 'ws-ships',
+        paint: {
+          'circle-radius': 4,
+          // 'circle-color': 'lightcoral',
+          'circle-stroke-color': 'gray',
+          'circle-stroke-width': 0.8,
+          'circle-color': [
+            'match',
+            ['get', 'threatLevel'],
+            'high',
+            '#FF6B6B', // pastel danger
+            'medium',
+            '#FFD166', // amber warning
+            'low',
+            '#06D6A0', // safe green
+            '#999999', // default
+          ],
+        },
+      });
       this.nav.isLoading$.next(false);
 
       const alert = this.store.selectedAlert$.value;
@@ -188,14 +221,12 @@ export class MapComponent {
         this.connectTwoPoints(alert?.shiP_IDS[0], alert?.shiP_IDS[1]);
       }
 
-      if (alert && alert.historicalPosition) {
-        this.handleHistoricalPos(alert.shiP_IDS[0], alert['historicalPosition']);
+      if (alert && alert.historicalPositions) {
+        this.handleHistoricalPos(alert.shiP_IDS[0], alert['historicalPositions']);
       }
 
       if (alert && alert.shouldDisplayTerritorialWaters) {
-        this.selectShip(alert.shiP_IDS[0]);
-        this.nav.isLoading$.next(true);
-
+        // this.nav.isLoading$.next(true);
         // timer(2000)
         //   .pipe(
         //     switchMap(() => from(this.addPolandTerritorialWaters())),
@@ -207,7 +238,8 @@ export class MapComponent {
       }
 
       if (alert) {
-        this.selectShip(alert.shiP_IDS[0]);
+        console.log(alert.zoomLevel);
+        this.selectShip(alert.shiP_IDS[0], undefined, alert.zoomLevel);
       }
     });
 
@@ -232,18 +264,21 @@ export class MapComponent {
             const parsed = JSON.parse(reader.result as string).MetaData;
 
             // this.ships.push(json);
-            const ship: any = {
+            const ship: MapShipPoint = {
               mmsi: parsed.MMSI,
               lat: parsed.latitude,
-              lon: parsed.longitude,
+              lng: parsed.longitude,
+              shipName: parsed.ShipName,
+              shipType: 1,
               // speed: parsed.speed,
-              heading: parsed.ShipName,
-              timestamp: Date.now(),
+              // heading: parsed.ShipName,
+              // timestamp: Date.now(),
             };
 
             if (!this.shipsMap.get(ship.mmsi)) {
-              this.updateMap();
+              this.addSonarElement([ship.lng, ship.lat], false, 1, true);
             }
+            this.updateMap();
 
             // Store/update ship
             this.shipsMap.set(ship.mmsi, ship);
@@ -276,34 +311,50 @@ export class MapComponent {
   }
 
   private updateMap() {
-    if (!this.map || !this.map.getSource('ships')) return;
+    if (!this.map || !this.map.getSource('ws-ships')) return;
 
-    const features = Array.from(this.shipsMap.values()).map((ship) => ({
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: [ship.lon, ship.lat],
-      },
-      properties: {
-        id: ship.mmsi,
-
-        data: {
-          id: ship.mmsi,
-          mmsi: ship.mmsi,
+    const features = Array.from(this.shipsMap.values()).map((ship) => {
+      // const shipPoint: MapShipPoint = {
+      //   lat: ship.
+      //   lng: ship.
+      //   mmsi: ship.
+      //   shipType: ship.
+      //   shipName: ship.
+      // }
+      return {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [ship.lng, ship.lat],
         },
-      },
-    }));
+        properties: {
+          id: ship.mmsi,
+          threatLevel: this.assessThreatLevel(ship),
+          data: {
+            mmsi: ship.mmsi,
+            shipType: `${ship.shipType}`,
+            threatLevel: this.assessThreatLevel(ship),
+            shipName: ship.shipName,
+          } as FocusedShipPoint,
+        },
+      };
+    });
 
     const geojson = {
       type: 'FeatureCollection',
       features,
     };
 
-    (this.map.getSource('ships') as maplibregl.GeoJSONSource).setData(geojson as any);
+    (this.map.getSource('ws-ships') as maplibregl.GeoJSONSource).setData(geojson as any);
   }
 
-  private addSonarElement(coordinates: [number, number], isEmpty = false): void {
-    const color = isEmpty ? 'gray' : 'red';
+  private addSonarElement(
+    coordinates: [number, number],
+    isEmpty = false,
+    numOfWaves = 4,
+    singleEmission = false
+  ): void {
+    let color = isEmpty ? 'gray' : 'red';
 
     // create a DOM element for the marker
     const el = document.createElement('div');
@@ -316,11 +367,20 @@ export class MapComponent {
     if (isEmpty) {
       el2.classList.add('sonar-emitter--empty');
     }
+
+    if (singleEmission) {
+      color = 'cyan';
+      el2.classList.add('sonar-emitter--single');
+    }
+
+    el2.classList.add(`sonar-emitter--${numOfWaves}`);
+
     // el2.classList.add('center-absolute-xy');
 
     el.appendChild(el2);
 
-    [1, 2, 3, 4].forEach((i) => {
+    Array.from({ length: numOfWaves }).forEach((_, index) => {
+      const i = index + 1;
       const elInner = document.createElement('div');
       el2.appendChild(elInner);
       elInner.classList.add('sonar-wave');
@@ -342,10 +402,16 @@ export class MapComponent {
 
     // el.style['border-top' as any] = `20px solid yellow`;
 
+    const marker = new maplibregl.Marker({ element: el }).setLngLat(coordinates).addTo(this.map);
+
     // add marker to map
-    this.activeAlerts.push(
-      new maplibregl.Marker({ element: el }).setLngLat(coordinates).addTo(this.map)
-    );
+    this.activeAlerts.push(marker);
+
+    if (singleEmission) {
+      setTimeout(() => {
+        marker.remove();
+      }, 1000);
+    }
   }
 
   private registerShipClick(): void {
@@ -470,6 +536,7 @@ export class MapComponent {
     if (!ship) {
       return;
     }
+    console.log(zoomLevel);
     this.map.flyTo({
       padding: { right: 15 * 25 },
       center: coordinates ?? [ship.lon, ship.lat],
@@ -507,17 +574,8 @@ export class MapComponent {
       return;
     }
 
-    [ship1, ship2].forEach((s: MTShipData) => {
-      if (
-        this.activeAlerts.some((m: maplibregl.Marker) => {
-          const lngLat = m.getLngLat();
+    this.addSonarElement([ship2.lon, ship2.lat]);
 
-          return lngLat.lat !== s.lat || lngLat.lng !== s.lon;
-        })
-      ) {
-        this.addSonarElement([s.lon, s.lat]);
-      }
-    });
     console.log('here');
     console.log([ship1.lat, ship1.lon], [ship2.lat, ship2.lon]);
     const routeGeoJSON: any = {
@@ -553,47 +611,67 @@ export class MapComponent {
     });
   }
 
-  public handleHistoricalPos(shipId: string, historicalPosition: [number, number]): void {
+  public handleHistoricalPos(
+    shipId: string,
+    historicalPositions: [number, number, boolean][]
+  ): void {
     const ship = this.findShipById(shipId);
 
     if (!ship) {
       return;
     }
 
-    console.log(4, shipId, historicalPosition);
     this.addSonarElement([ship.lon, ship.lat]);
-    this.addSonarElement(historicalPosition, true);
 
-    const routeGeoJSON: any = {
-      type: 'Feature',
-      properties: {},
-      geometry: {
-        type: 'LineString',
-        coordinates: [
-          [ship.lon, ship.lat],
-          [historicalPosition[0], historicalPosition[1]],
-        ], // Example: [[-74.0060, 40.7128], [-73.9352, 40.7306]]
-      },
-    };
+    historicalPositions.forEach((historicalPosition: [number, number, boolean], i: number) => {
+      this.addSonarElement(
+        [historicalPosition[0], historicalPosition[1]],
+        historicalPosition[2],
+        1
+      );
 
-    this.map.addSource('route-source', {
-      type: 'geojson',
-      data: routeGeoJSON,
-    });
+      // const previous = i > 0 ? historicalPositions[i - 1] : [ship.lon, ship.lat];
+      const layerName = `route-layer-${i}`;
+      const sourceName = `route-source-${i}`;
 
-    this.map.addLayer({
-      id: 'route-layer',
-      type: 'line',
-      source: 'route-source',
-      layout: {
-        'line-join': 'round', // Optional: make lines round at joins
-        'line-cap': 'round', // Optional: make lines round at the ends
-      },
-      paint: {
-        'line-color': 'gray', // Color of the line
-        'line-width': 1, // Width of the line
-        'line-dasharray': [2, 2], // pattern: [dash length, gap length]
-      },
+      const previous =
+        i === 0
+          ? [ship.lon, ship.lat]
+          : [historicalPositions[i - 1][0], historicalPositions[i - 1][1]];
+
+      const current = [historicalPosition[0], historicalPosition[1]];
+
+      const routeGeoJSON: any = {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            [previous[0], previous[1]],
+            [current[0], current[1]],
+          ], // Example: [[-74.0060, 40.7128], [-73.9352, 40.7306]]
+        },
+      };
+
+      this.map.addSource(sourceName, {
+        type: 'geojson',
+        data: routeGeoJSON,
+      });
+
+      this.map.addLayer({
+        id: layerName,
+        type: 'line',
+        source: sourceName,
+        layout: {
+          'line-join': 'round', // Optional: make lines round at joins
+          'line-cap': 'round', // Optional: make lines round at the ends
+        },
+        paint: {
+          'line-color': 'gray', // Color of the line
+          'line-width': 1, // Width of the line
+          'line-dasharray': [2, 2], // pattern: [dash length, gap length]
+        },
+      });
     });
   }
 
@@ -697,5 +775,44 @@ export class MapComponent {
     } catch (err) {
       console.error('Error displaying waters:', err);
     }
+  }
+
+  // // polygon
+
+  // public addPolygon(): void {
+  //   let polygon: any = {
+  //     type: 'FeatureCollection',
+  //     features: [
+  //       {
+  //         type: 'Feature',
+  //         geometry: { type: 'Polygon', coordinates: [[]] },
+  //       },
+  //     ],
+  //   };
+
+  //   this.map.on('dblclick', (e) => {
+  //     polygon.features[0].geometry.coordinates[0].push([e.lngLat.lng, e.lngLat.lat]);
+
+  //     if (!this.map.getSource('polygon-selection')) {
+  //       this.map.addSource('polygon-selection', { type: 'geojson', data: polygon });
+  //       this.map.addLayer({
+  //         id: 'polygon-selection-layer',
+  //         type: 'fill',
+  //         source: 'polygon-selection',
+  //         paint: { 'fill-color': '#00ff00', 'fill-opacity': 0.3 },
+  //       });
+  //     } else {
+  //       (this.map.getSource('polygon-selection') as any)!.setData(polygon);
+  //     }
+  //   });
+
+  //   this.map.on('dblclick', (e) => {
+  //     console.log('Double-click detected at:', e.lngLat);
+  //     // e.lngLat contains { lng, lat }
+  //   });
+  // }
+
+  private updateShip(ship: MapShipPoint): void {
+    console.log(ship);
   }
 }
