@@ -289,6 +289,18 @@ body {
   // background-color: HSL(45, 100%, 50%);
         // transform: translate(-50%, -100%);
 
+  &--empty {
+      width: 16px;
+      height: 16px;
+
+      .sonar-wave-2 {
+        display: none;
+      }
+
+            .sonar-wave-3 {
+        display: none;
+      }
+    }
   }
 
   .sonar-wave {

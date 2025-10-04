@@ -3,4 +3,5 @@ export interface AlertType {
   shiP_IDS: string[];
   reason: string;
   historicalPosition?: [number, number];
+  shouldDisplayTerritorialWaters?: boolean;
 }

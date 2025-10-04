@@ -32,4 +32,10 @@ export class API {
   public getWSPath(): string {
     return 'wss://goodvibesapi-dsetebgfaugxcfa2.westeurope-01.azurewebsites.net/ws';
   }
+
+  public getPLTerritorial(): Observable<any> {
+    return this.httpClient.get<MTShipData[]>(
+      `'https://nominatim.openstreetmap.org/search.php?q=Poland&polygon_geojson=1&format=json';`
+    );
+  }
 }

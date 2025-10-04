@@ -18,13 +18,14 @@ export const MOCK_ALERTS: AlertType[] = [
   },
   {
     alerT_TYPE: 'WARNING',
-    shiP_IDS: ['4876747'],
+    shiP_IDS: ['TkRnMU9UUTJORGcxT1RRMk5EZzFPUT09LXdkMTQ1OExSVzBVTnZMZHo4TUVYRUE9PQ=='],
     reason: 'GPS signal lost',
-    historicalPosition: [0, 0],
+    historicalPosition: [143.91833, 46.823334],
   },
   {
     alerT_TYPE: 'DANGER',
-    shiP_IDS: ['TnpBMU9Ea3lOekExT0RreU56QTFPQT09LVZSNW9ibzhVbHMxZWFjcHhZVGZtc0E9PQ=='],
+    shiP_IDS: ['756295'],
     reason: 'Entering territorial waters',
+    shouldDisplayTerritorialWaters: true,
   },
 ];
