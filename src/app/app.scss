@@ -1,0 +1,25 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.content {
+  display: flex;
+}
+
+.mat-toolbar {
+  background-color: var(--primary-deep);
+  color: var(--secondary);
+  position: relative;
+  height: var(--header-height);
+}
+
+.route-container {
+  position: relative;
+}
+.route {
+  display: flex;
+  flex: 1;
+}
