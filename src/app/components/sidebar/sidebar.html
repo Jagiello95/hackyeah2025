@@ -1,3 +1,12 @@
 <div class="sidebar__container">
-  <ng-content></ng-content>
+  <!-- <ng-content></ng-content> -->
+
+  @if(selectedShip) {
+  <span>{{ selectedShip.mmsi }}</span>
+  <span>{{ getShipCountry(selectedShip) }}</span>
+  <!-- <span>{{ selectedShip.lat }}</span>
+  <span>{{ selectedShip.lng }}</span> -->
+  <span>{{ selectedShip.threatLevel }}</span>
+
+  }
 </div>

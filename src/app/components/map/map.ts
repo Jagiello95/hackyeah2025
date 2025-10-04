@@ -14,6 +14,7 @@ import { MapShipPoint } from '../../models/map-ship-point.model';
 import { Store } from '../../services/store';
 import { Sidebar } from '../sidebar/sidebar';
 import { AsyncPipe } from '@angular/common';
+import { FocusedShipPoint } from '../../models/focused-ship-point.model';
 
 @Component({
   selector: 'app-map',
@@ -32,6 +33,8 @@ export class MapComponent {
   protected marineTraffic = new FormControl(false);
   protected mock = new FormControl(false);
   protected trackShips = new FormControl(false);
+
+  protected countMap = new Map<number, number>();
 
   protected init = false;
   style: any;
@@ -66,12 +69,14 @@ export class MapComponent {
       .subscribe(() => {
         this.init = false;
       });
+
+    // this.registerShipClick();
   }
 
   ngAfterViewInit() {
     setTimeout(() => {
       this.initMap();
-      this.api.fetchShips().subscribe((res) => console.log(res));
+      this.updateMap();
     }, this.afterViewTimeout);
   }
 
@@ -81,9 +86,11 @@ export class MapComponent {
     this.map = new maplibregl.Map({
       container: 'map',
       style: this.style,
-      center: [7, 60],
+      center: [20, 50],
       zoom: 0,
     });
+
+    // this.map.setRenderWorldCopies(false);
 
     this.map.on('load', async () => {
       const image = await this.map.loadImage(
@@ -115,58 +122,55 @@ export class MapComponent {
   private loadMarineTraffic(): void {
     const data: MapShipPoint[] = [];
     this.api.fetchShips().subscribe((res: MTShipData[]) => {
+      console.log(res.length);
+
+      this.map.addSource('ships', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [],
+        },
+      });
+
       res.forEach((unit) => {
         data.push({
           lat: unit.lat,
           lng: unit.lon,
           mmsi: unit.shiP_ID,
+          shipType: unit.shiptype,
         });
+      });
+
+      this.loadData(data);
+
+      this.map.addLayer({
+        id: 'ships',
+        type: 'circle',
+        source: 'ships',
+        paint: {
+          'circle-radius': 4,
+          // 'circle-color': 'lightcoral',
+          'circle-stroke-color': 'gray',
+          'circle-stroke-width': 0.8,
+          'circle-color': [
+            'match',
+            ['get', 'threatLevel'],
+            'high',
+            '#FF6B6B', // pastel danger
+            'medium',
+            '#FFD166', // amber warning
+            'low',
+            '#06D6A0', // safe green
+            '#999999', // default
+          ],
+        },
       });
     });
 
-    this.map.addSource('ships', {
-      type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: [],
-      },
-    });
-
-    this.map.addLayer({
-      id: 'ships-layer',
-      type: 'circle',
-      source: 'ships',
-      paint: {
-        'circle-radius': 4,
-        'circle-color': 'lightcoral',
-        'circle-stroke-color': 'gray',
-        'circle-stroke-width': 0.8,
-      },
-    });
-
-    const features = data.map((ship) => ({
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: [ship.lng, ship.lat],
-      },
-      properties: {
-        mmsi: ship.mmsi,
-        // speed: ship.speed,
-        // heading: ship.heading,
-      },
-    }));
-
-    const geojson = {
-      type: 'FeatureCollection',
-      features,
-    };
-
-    (this.map.getSource('ships') as maplibregl.GeoJSONSource).setData(geojson as any);
+    this.registerShipClick();
   }
 
   private startWS(): void {
-    console.log('start');
     // this.closeWs();
     this.ws = new WebSocket(this.api.getWSPath());
 
@@ -237,11 +241,147 @@ export class MapComponent {
         coordinates: [ship.lon, ship.lat],
       },
       properties: {
-        mmsi: ship.mmsi,
-        // speed: ship.speed,
-        heading: ship.heading,
+        data: {
+          mmsi: ship.mmsi,
+          // speed: ship.speed,
+          heading: ship.heading,
+        },
       },
     }));
+
+    const geojson = {
+      type: 'FeatureCollection',
+      features,
+    };
+
+    (this.map.getSource('ships') as maplibregl.GeoJSONSource).setData(geojson as any);
+  }
+
+  private addSonarElement(coordinates: [number, number]): void {
+    // create a DOM element for the marker
+    const el = document.createElement('div');
+    el.classList.add('marker');
+    el.classList.add('sonar-wrapper');
+
+    const el2 = document.createElement('div');
+    el2.classList.add('sonar-emitter');
+    // el2.classList.add('center-absolute-xy');
+
+    el.appendChild(el2);
+
+    [1, 2, 3, 4].forEach((i) => {
+      const elInner = document.createElement('div');
+      el2.appendChild(elInner);
+      elInner.classList.add('sonar-wave');
+      elInner.classList.add(`sonar-wave-${i}`);
+    });
+
+    // el.className = 'marker';
+    // el.style.backgroundImage = `url(https://picsum.photos/${marker.properties.iconSize.join(
+    //   '/'
+    // )}/)`;
+    // el.style.width = `${marker.properties.iconSize[0]}px`;
+    // el.style.height = `${marker.properties.iconSize[1]}px`;
+
+    el.style.width = '5';
+    el.style.height = '5';
+    // el.style['border-left' as any] = '10px solid transparent';
+    // el.style['border-right' as any] = '10px solid transparent';
+
+    // el.style['border-top' as any] = `20px solid yellow`;
+
+    // add marker to map
+    new maplibregl.Marker({ element: el }).setLngLat(coordinates).addTo(this.map);
+  }
+
+  private registerShipClick(): void {
+    console.log('hello');
+    this.map.on('click', 'ships', (e: any) => {
+      console.log(e);
+      const { lng, lat } = e.lngLat;
+
+      console.log(lng, lat);
+      const coordinates = e.features[0].geometry.coordinates.slice();
+      const data: FocusedShipPoint = e.features[0].properties['data'];
+      console.log(data);
+      // Ensure that if the map is zoomed out such that multiple
+      // copies of the feature are visible, the popup appears
+      // over the copy being pointed to.
+      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      }
+
+      this.toggle$.next(true);
+      this.map.flyTo({
+        padding: { right: 15 * 25 },
+        center: coordinates,
+        zoom: 4,
+      });
+
+      this.addSonarElement(coordinates);
+      this.store.focusedShip$.next(data);
+
+      // new maplibregl.Popup().setLngLat(coordinates).setHTML(description).addTo(this.map);
+    });
+
+    // Change the cursor to a pointer when the mouse is over the places layer.
+    this.map.on('mouseenter', 'ships', () => {
+      this.map.getCanvas().style.cursor = 'pointer';
+    });
+
+    // Change it back to a pointer when it leaves.
+    this.map.on('mouseleave', 'ships', () => {
+      this.map.getCanvas().style.cursor = '';
+    });
+  }
+
+  private assessThreatLevel(ship: MapShipPoint): 'high' | 'medium' | 'small' {
+    if (!this.countMap.has(ship.shipType)) {
+      this.countMap.set(ship.shipType, 0);
+    }
+
+    let currentValue = this.countMap.get(ship.shipType) ?? 0;
+    this.countMap.set(ship.shipType, currentValue + 1);
+    switch (ship.shipType) {
+      case 0:
+        return 'high';
+      case 2:
+        return 'medium';
+      case 3:
+        return 'small';
+      case 7:
+        return 'high';
+      case 8:
+        return 'small';
+      default:
+        return 'small';
+    }
+  }
+
+  private loadData(data: MapShipPoint[]): void {
+    this.countMap.clear();
+
+    console.log(data.length);
+    const features = data.map((ship) => ({
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [ship.lng, ship.lat],
+      },
+      properties: {
+        threatLevel: this.assessThreatLevel(ship),
+        data: {
+          mmsi: ship.mmsi,
+          shipType: `${ship.shipType}`,
+          threatLevel: this.assessThreatLevel(ship),
+        } as FocusedShipPoint,
+
+        // speed: ship.speed,
+        // heading: ship.heading,
+      },
+    }));
+
+    console.log(this.countMap.entries());
 
     const geojson = {
       type: 'FeatureCollection',
