@@ -196,14 +196,14 @@ export class MapComponent {
         this.selectShip(alert.shiP_IDS[0]);
         this.nav.isLoading$.next(true);
 
-        timer(2000)
-          .pipe(
-            switchMap(() => from(this.addPolandTerritorialWaters())),
-            tap(() => {
-              this.nav.isLoading$.next(false);
-            })
-          )
-          .subscribe();
+        // timer(2000)
+        //   .pipe(
+        //     switchMap(() => from(this.addPolandTerritorialWaters())),
+        //     tap(() => {
+        //       this.nav.isLoading$.next(false);
+        //     })
+        //   )
+        //   .subscribe();
       }
 
       if (alert) {
@@ -627,14 +627,13 @@ export class MapComponent {
   async addPolandTerritorialWaters() {
     console.log('here');
     try {
-      // Fetch Poland boundary
-      // const resp = await fetch(
-      //   'https://nominatim.openstreetmap.org/search.php?q=Poland&polygon_geojson=1&format=json',
-      //   { headers: { 'User-Agent': 'angular-maplibre-turf/1.0' } }
-      // );
-      // const results = await resp.json();
+      const resp = await fetch(
+        'https://nominatim.openstreetmap.org/search.php?q=Poland&polygon_geojson=1&format=json',
+        { headers: { 'User-Agent': 'angular-maplibre-turf/1.0' } }
+      );
+      const results = await resp.json();
 
-      const results: any = waterTerritorial;
+      // const results: any = waterTerritorial;
       if (!results.length) throw new Error('No polygon returned');
 
       // Pick administrative boundary
