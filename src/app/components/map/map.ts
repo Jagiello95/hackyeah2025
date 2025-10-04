@@ -275,9 +275,11 @@ export class MapComponent {
               // timestamp: Date.now(),
             };
 
-            if (!this.shipsMap.get(ship.mmsi)) {
-              this.addSonarElement([ship.lng, ship.lat], false, 1, true);
+            if (this.shipsMap.get(ship.mmsi)) {
+              console.log('here');
             }
+            this.addSonarElement([ship.lng, ship.lat], false, 1, true);
+
             this.updateMap();
 
             // Store/update ship
@@ -410,7 +412,7 @@ export class MapComponent {
     if (singleEmission) {
       setTimeout(() => {
         marker.remove();
-      }, 1000);
+      }, 800);
     }
   }
 
