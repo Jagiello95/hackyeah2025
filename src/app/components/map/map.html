@@ -2,7 +2,7 @@
   <div id="map" style="flex: 1" class="map-content map" [class.init]="init"></div>
 </div>
 
-<app-sidebar [toggled]="!!(toggle$ | async)" [fixed]="true">
+<app-sidebar [toggled]="!!(toggle$ | async)" [fixed]="true" (close)="onClose()">
   <h1 class="sidebar__header">Hello</h1>
 
   <div class="divider"></div>

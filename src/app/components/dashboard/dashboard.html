@@ -1,32 +1,34 @@
 <!-- <div class="card p-3" [class.init]="init"></div> -->
-<div class="card-container card-container--col"></div>
-<div class="card-container card-container--col flex-2">
-  @for (alert of alerts; track alert.id) {
-  <div
-    class="card p-1"
-    [class.init]="init"
-    [class.card--danger]="alert.alerT_TYPE === 'DANGER'"
-    [class.card--warning]="alert.alerT_TYPE === 'WARNING'"
-    (click)="onCardClick(alert)"
-  >
-    <mat-icon
-      class="login-icon material-symbols-outlined"
+<div class="card-container card-container--filters">
+  <!-- <div class="card p-1" [class.init]="init"></div> -->
+  <div class="card-container card-container--col flex-2">
+    @for (alert of alerts; track alert.id) {
+    <div
+      class="card p-1"
       [class.init]="init"
-      [class.danger]="alert.alerT_TYPE === 'DANGER'"
-      [class.warning]="alert.alerT_TYPE === 'WARNING'"
-      >{{ getIconFn(alert) }}</mat-icon
+      [class.card--danger]="alert.alerT_TYPE === 'DANGER'"
+      [class.card--warning]="alert.alerT_TYPE === 'WARNING'"
+      (click)="onCardClick(alert)"
     >
-    <div class="card-content">
-      <div class="header">
-        <span>{{ alert.alerT_TYPE === 'DANGER' ? 'DANGER' : 'WARNING' }}</span
-        ><span>{{ alert.timestamp | date }}</span>
+      <mat-icon
+        class="login-icon material-symbols-outlined"
+        [class.init]="init"
+        [class.danger]="alert.alerT_TYPE === 'DANGER'"
+        [class.warning]="alert.alerT_TYPE === 'WARNING'"
+        >{{ getIconFn(alert) }}</mat-icon
+      >
+      <div class="card-content">
+        <div class="header">
+          <span>{{ alert.alerT_TYPE === 'DANGER' ? 'DANGER' : 'WARNING' }}</span
+          ><span>{{ alert.timestamp | date }}</span>
+        </div>
+        <div class="label mb-1">
+          <span>{{ alert.position }}</span
+          ><span>{{ getTimeOffsetString(alert.timestamp) }}</span>
+        </div>
+        <div class="description">{{ alert.reason }}</div>
       </div>
-      <div class="label mb-1">
-        <span>{{ alert.position }}</span
-        ><span>{{ getTimeOffsetString(alert.timestamp) }}</span>
-      </div>
-      <div class="description">{{ alert.reason }}</div>
     </div>
+    }
   </div>
-  }
 </div>

@@ -891,4 +891,13 @@ export class MapComponent {
   private updateShip(ship: MapShipPoint): void {
     console.log(ship);
   }
+
+  public onClose(): void {
+    this.toggle$.next(false);
+    this.map.flyTo({
+      padding: window.screen.width > 600 ? { right: 15 * 25 } : { bottom: 30 },
+      center: this.map.getCenter(),
+      zoom: 4,
+    });
+  }
 }

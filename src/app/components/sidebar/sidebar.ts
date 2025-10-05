@@ -1,4 +1,4 @@
-import { Component, HostBinding, inject, Input } from '@angular/core';
+import { Component, EventEmitter, HostBinding, inject, Input, Output } from '@angular/core';
 import { Store } from '../../services/store';
 import { MapShipPoint } from '../../models/map-ship-point.model';
 import { midCountryMap } from '../../constants/mid-to-country';
@@ -6,6 +6,7 @@ import { ShipTypes } from '../../constants/ship-type';
 import { MatIconModule } from '@angular/material/icon';
 import { getIcon } from '../constants';
 import { MatDivider } from '@angular/material/divider';
+import { Navigation } from '../../services/navigation';
 
 @Component({
   selector: 'app-sidebar',
@@ -14,12 +15,15 @@ import { MatDivider } from '@angular/material/divider';
   styleUrl: './sidebar.scss',
 })
 export class Sidebar {
+  private nav = inject(Navigation);
   @HostBinding('class.is-sidebar-expanded') get isExpandedClass(): boolean {
     return this.isExpanded;
   }
   @HostBinding('class.is-sidebar-fixed') get isFixedClass(): boolean {
     return !!this.fixed;
   }
+
+  @Output() close = new EventEmitter();
 
   @Input() toggled: boolean | null = false;
   @Input() fixed: boolean | null = false;
@@ -78,5 +82,9 @@ export class Sidebar {
       return 'low';
     }
     return 'medium';
+  }
+
+  public onClose(): void {
+    this.close.emit();
   }
 }

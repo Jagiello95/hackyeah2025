@@ -13,7 +13,7 @@
   width: 0rem;
 
   .sidebar__container {
-    padding: 1.5rem 3rem;
+    padding: 3rem 3rem;
   }
 
   .sidebar__content {
@@ -113,4 +113,22 @@
 .mat-divider {
   border-top-color: var(--panel);
   margin: 0.5rem 0;
+}
+
+.close {
+  position: absolute;
+  .mat-icon {
+    --size: 2rem;
+    width: var(--size);
+    height: var(--size);
+    font-size: var(--size);
+    color: var(--panel);
+    transition: color var(--transition-extra) ease-out;
+    &:hover {
+      color: #677089;
+      cursor: pointer;
+    }
+  }
+  top: 1rem;
+  right: 1rem;
 }

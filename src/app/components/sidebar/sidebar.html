@@ -1,13 +1,14 @@
-@if(store.selectedAlert$.value) {
 <div class="alert-header">
   <mat-icon
     class="login-icon material-symbols-outlined"
-    [class.danger]="store.selectedAlert$.value.alerT_TYPE === 'DANGER'"
-    [class.warning]="store.selectedAlert$.value.alerT_TYPE === 'WARNING'"
-    >{{ getIconFn(store.selectedAlert$.value) }}</mat-icon
+    [class.danger]="store.selectedAlert$.value?.alerT_TYPE === 'DANGER'"
+    [class.warning]="store.selectedAlert$.value?.alerT_TYPE === 'WARNING'"
+    >{{
+      store.selectedAlert$.value ? getIconFn(store.selectedAlert$.value) : 'directions_boat'
+    }}</mat-icon
   >
 </div>
-}
+
 <div class="sidebar__container">
   @if(store.selectedAlert$.value?.description) {
   <div class="sidebar__content__label">
@@ -51,13 +52,16 @@
       <div class="label">Country</div>
       <div class="value">{{ getShipCountry(selectedShip) }}</div>
     </div>
-    }
-
+    } @if(store.selectedAlert$.value) {
     <div class="sidebar__content__label">
       <div class="label">Threat Level</div>
 
       <div class="value">{{ getThreatLevel(selectedShip) }}</div>
     </div>
+    }
   </div>
   }
+</div>
+<div class="close">
+  <mat-icon class="login-icon material-symbols-outlined" (click)="onClose()">close</mat-icon>
 </div>
