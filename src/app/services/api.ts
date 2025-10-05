@@ -42,7 +42,7 @@ export class API {
   }
 
   public getOpenApiAlerts(): Observable<any> {
-    return of(mockedChatAlerts);
+    // return of(mockedChatAlerts);
     return this.httpClient.post<any[]>(`${this.API}/openaiapirequest/alerts`, {});
   }
 }
