@@ -255,20 +255,7 @@ export class MapComponent implements OnDestroy {
         this.handleHistoricalPos(alert.shiP_IDS[0], alert['historicalPositions']);
       }
 
-      if (alert && alert.shouldDisplayTerritorialWaters) {
-        // this.nav.isLoading$.next(true);
-        // timer(2000)
-        //   .pipe(
-        //     switchMap(() => from(this.addPolandTerritorialWaters())),
-        //     tap(() => {
-        //       this.nav.isLoading$.next(false);
-        //     })
-        //   )
-        //   .subscribe();
-      }
-
       if (alert) {
-        console.log(alert.zoomLevel);
         this.selectShip(alert.shiP_IDS[0], undefined, alert.zoomLevel);
       }
     });
@@ -277,28 +264,22 @@ export class MapComponent implements OnDestroy {
   }
 
   private startWS(): void {
-    // this.closeWs();
     this.ws = new WebSocket('wss://good-vibes-realtime-ships-api.onrender.com');
 
     this.ws.onopen = () => console.log('Connected to local WS bridge');
 
     this.ws.onmessage = (event) => {
       const data = event.data;
-      // console.log(data);
-      // return;
       const date = new Date();
       if (this.shipsMap.size > 2000 && isBefore(date, addMilliseconds(this.lastTimestamp, 250))) {
         return;
       }
-      // this.lastTimestamp = new Date();
       if (data instanceof Blob) {
-        // Read the Blob as text
         const reader = new FileReader();
         reader.onload = () => {
           try {
             const parsed = JSON.parse(reader.result as string).MetaData;
 
-            // this.ships.push(json);
             const ship: MapShipPoint = {
               mmsi: parsed.MMSI,
               lat: parsed.latitude,
@@ -468,7 +449,6 @@ export class MapComponent implements OnDestroy {
 
       const ship = this.findShipById(id);
       if (ship) {
-        console.log('clicked ship', ship);
         this.selectShip(ship.shiP_ID, coordinates);
       }
 
@@ -609,7 +589,6 @@ export class MapComponent implements OnDestroy {
     }
 
     const selectedShip = this.shipsMap.get(id);
-    console.log(selectedShip);
 
     return selectedShip ? selectedShip : null;
   }
@@ -621,7 +600,6 @@ export class MapComponent implements OnDestroy {
     if (!ship) {
       return;
     }
-    console.log(window.screen.width);
     this.map.flyTo({
       padding: window.screen.width > 600 ? { right: 15 * 25 } : { bottom: 120 },
       center: coordinates ?? [ship.lon, ship.lat],
@@ -677,16 +655,12 @@ export class MapComponent implements OnDestroy {
     const ship1 = this.findShipById(shipId1);
     const ship2 = this.findShipById(shipId2);
 
-    console.log(ship1, ship2);
-
     if (!ship1 || !ship2) {
       return;
     }
 
     this.addSonarElement([ship2.lon, ship2.lat]);
 
-    console.log('here');
-    console.log([ship1.lat, ship1.lon], [ship2.lat, ship2.lon]);
     const routeGeoJSON: any = {
       type: 'Feature',
       properties: {},
@@ -812,7 +786,6 @@ export class MapComponent implements OnDestroy {
   }
 
   async addPolandTerritorialWaters() {
-    console.log('here');
     try {
       const resp = await fetch(
         'https://nominatim.openstreetmap.org/search.php?q=Poland&polygon_geojson=1&format=json',
@@ -914,16 +887,9 @@ export class MapComponent implements OnDestroy {
   //       (this.map.getSource('polygon-selection') as any)!.setData(polygon);
   //     }
   //   });
-
-  //   this.map.on('dblclick', (e) => {
-  //     console.log('Double-click detected at:', e.lngLat);
-  //     // e.lngLat contains { lng, lat }
-  //   });
   // }
 
-  private updateShip(ship: MapShipPoint): void {
-    console.log(ship);
-  }
+  private updateShip(ship: MapShipPoint): void {}
 
   public onClose(): void {
     this.toggle$.next(false);
@@ -951,7 +917,6 @@ export class MapComponent implements OnDestroy {
 
         const coordinates = e.features[0].geometry.coordinates.slice();
         const description = e.features[0].properties.id;
-        console.log(e.features[0]);
         const data = JSON.parse(e.features[0].properties.data);
 
         const tooltip = data.shipName;

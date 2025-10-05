@@ -48,7 +48,6 @@ export class Sidenav implements OnInit {
 
   ngOnInit(): void {
     this.navigation.menuToggle$.subscribe((val: boolean) => {
-      console.log(2);
       this.isExpanded = val;
     });
   }

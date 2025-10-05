@@ -62,7 +62,6 @@ export class Dashboard {
 
     this.api.fetchAlerts().subscribe((alerts) => {
       this.alerts = alerts.map((alert, i) => ({ ...alert, id: i }));
-      console.log(alerts);
     });
 
     this.api
@@ -109,10 +108,6 @@ export class Dashboard {
         this.allowed.push('INFO');
       }
     });
-
-    // this.api.getOpenApiAlerts().subscribe((res) => {
-    //   console.log('--->', res);
-    // });
   }
 
   public onCardClick(alert: AlertType) {
@@ -145,15 +140,12 @@ export class Dashboard {
 
   public isAllowed(alert: AlertType): boolean {
     const togglesAllowed = this.allowed.includes(alert.alerT_TYPE);
-    console.log(1, this.filter.value);
 
     if (!this.filter.value) {
       return togglesAllowed;
     }
-    console.log(2, this.filter.value);
 
     const filterAllowed = [alert.reason, alert.alerT_TYPE, alert.position].some((match) => {
-      console.log(match?.toLowerCase(), this.filter.value);
       return match?.toLowerCase().includes((this.filter.value ?? '').toLowerCase());
     });
 
