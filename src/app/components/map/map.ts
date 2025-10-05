@@ -564,7 +564,7 @@ export class MapComponent implements OnDestroy {
     this.map.flyTo({
       padding: window.screen.width > 600 ? { right: 15 * 25 } : { bottom: 120 },
       center: coordinates ?? [ship.lon, ship.lat],
-      zoom: zoomLevel,
+      zoom: zoomLevel > this.map.getZoom() ? zoomLevel : this.map.getZoom(),
     });
 
     this.addSonarElement(coordinates ?? [ship.lon, ship.lat]);

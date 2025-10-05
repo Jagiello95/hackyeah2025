@@ -76,7 +76,7 @@ export class Dashboard {
                 reason: unit.REASON.length > 80 ? `${unit.REASON.slice(0, 80)}...` : unit.REASON,
                 id: unit.SHIP_ID,
                 timestamp: new Date().toUTCString(),
-                position: 'Panama',
+                position: unit.POSITION ?? 'International Waters',
                 zoomLevel: 5,
                 description: unit.REASON,
                 type: ThreatType.ai,

@@ -52,7 +52,7 @@ export const MOCK_ALERTS: AlertType[] = [
     type: ThreatType.spoof,
     position: 'Russia',
     timestamp: subMinutes(new Date(), 50).toISOString(),
-    description: 'Ship with no AIS signal near coast: possible illegal activity',
+    description: 'Ship lost AIS signal near coast: possible illegal activity',
   },
   {
     alerT_TYPE: 'DANGER',
