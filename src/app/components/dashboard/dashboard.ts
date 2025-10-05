@@ -74,7 +74,7 @@ export class Dashboard {
               ({
                 alerT_TYPE: unit.ALERT_TYPE,
                 shiP_IDS: [unit.SHIP_ID],
-                reason: unit.REASON,
+                reason: unit.REASON.length > 80 ? `${unit.REASON.slice(0, 80)}...` : unit.REASON,
                 id: unit.SHIP_ID,
                 timestamp: new Date().toUTCString(),
                 position: 'Panama',
