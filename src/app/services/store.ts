@@ -10,7 +10,7 @@ import { MTShipData } from '../models/mt-ship-data.model';
 })
 export class Store {
   public shouldMockData$ = new BehaviorSubject(false);
-  public focusedShip$ = new BehaviorSubject<MTShipData | null>(null);
+  public focusedShip$ = new BehaviorSubject<MapShipPoint | null>(null);
   public selectedAlert$ = new BehaviorSubject<AlertType | null>(null);
-  public shipData$ = new BehaviorSubject<MTShipData[] | null>(null)
+  public shipData$ = new BehaviorSubject<MTShipData[] | null>(null);
 }

@@ -1,10 +1,8 @@
 import { Component, HostBinding, inject, Input } from '@angular/core';
 import { Store } from '../../services/store';
 import { MapShipPoint } from '../../models/map-ship-point.model';
-import { FocusedShipPoint } from '../../models/focused-ship-point.model';
 import { midCountryMap } from '../../constants/mid-to-country';
 import { ShipTypes } from '../../constants/ship-type';
-import { MTShipData } from '../../models/mt-ship-data.model';
 
 @Component({
   selector: 'app-sidebar',
@@ -25,11 +23,11 @@ export class Sidebar {
 
   private store = inject(Store);
 
-  protected selectedShip: MTShipData | null = null;
+  protected selectedShip: MapShipPoint | null = null;
   protected isExpanded = false;
 
   ngOnInit(): void {
-    this.store.focusedShip$.subscribe((ship: MTShipData | null) => {
+    this.store.focusedShip$.subscribe((ship: MapShipPoint | null) => {
       this.selectedShip = ship;
     });
   }
@@ -40,20 +38,20 @@ export class Sidebar {
     }
   }
 
-  public getShipCountry(ship: MTShipData) {
-    const prefix = +`${ship.shiP_ID}`.substring(0, 3);
+  public getShipCountry(ship: MapShipPoint) {
+    const prefix = +`${ship.mmsi}`.substring(0, 3);
     return isNaN(prefix) ? '' : midCountryMap[prefix];
   }
 
-  public getShipType(ship: MTShipData) {
-    if (!ship.shiptype) {
+  public getShipType(ship: MapShipPoint) {
+    if (!ship.shipType) {
       return 'Unknown';
     }
-    return ShipTypes[+ship.shiptype] ?? 'Unknown';
+    return ShipTypes[+ship.shipType] ?? 'Unknown';
   }
 
-  public getThreatLevel(ship: MTShipData) {
-    if (ship.shiP_ID === '') {
+  public getThreatLevel(ship: MapShipPoint) {
+    if (ship.mmsi === '') {
       return 'high';
     }
     return 'medium';

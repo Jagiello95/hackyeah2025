@@ -19,8 +19,10 @@
     }
 
     .nav-option--user {
-      margin: auto 2rem auto;
-      flex: 0;
+      flex: 1;
+      margin: 0 auto;
+
+      // margin: auto 2rem auto;
     }
 
     .nav-option--menu {
@@ -33,6 +35,7 @@
       margin: 0 auto !important;
       justify-content: center !important;
       flex-direction: row;
+      flex: 2;
     }
   }
 }

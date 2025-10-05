@@ -593,7 +593,14 @@ export class MapComponent {
     });
 
     this.addSonarElement(coordinates ?? [ship.lon, ship.lat]);
-    this.store.focusedShip$.next(ship);
+    const mapPoint: MapShipPoint = {
+      lat: ship.lat,
+      lng: ship.lon,
+      mmsi: ship.shiP_ID,
+      shipType: ship.shiptype,
+      shipName: ship.shipname,
+    };
+    this.store.focusedShip$.next(mapPoint);
   }
 
   public selectWSShip(wsShip: MapShipPoint, zoomLevel = 6): void {
@@ -603,13 +610,14 @@ export class MapComponent {
     this.toggle$.next(true);
 
     this.map.flyTo({
-      padding: window.screen.width > 800 ? { right: 15 * 25 } : { bottom: 30 },
+      padding: window.screen.width > 600 ? { right: 15 * 25 } : { bottom: 30 },
       center: [wsShip.lng, wsShip.lat],
       zoom: zoomLevel > this.map.getZoom() ? zoomLevel : this.map.getZoom(),
     });
 
     this.addSonarElement([wsShip.lng, wsShip.lat]);
-    this.store.focusedShip$.next(null);
+
+    this.store.focusedShip$.next(wsShip);
   }
 
   public addCables(): void {
