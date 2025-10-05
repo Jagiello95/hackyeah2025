@@ -21,8 +21,7 @@
     .nav-option--user {
       flex: 1;
       margin: 0 auto;
-      color: cyan !important;
-
+      // color: var(--panel) !important;
       // margin: auto 2rem auto;
     }
 
@@ -152,4 +151,9 @@
   display: flex;
   flex: 1;
   flex-direction: column;
+}
+
+.nav-option--user {
+  color: var(--panel);
+  pointer-events: none;
 }
