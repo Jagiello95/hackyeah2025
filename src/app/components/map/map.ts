@@ -287,9 +287,9 @@ export class MapComponent implements OnDestroy {
       // console.log(data);
       // return;
       const date = new Date();
-      // if (this.shipsMap.size > 500 && isBefore(date, addMilliseconds(this.lastTimestamp, 250))) {
-      //   return;
-      // }
+      if (this.shipsMap.size > 2000 && isBefore(date, addMilliseconds(this.lastTimestamp, 250))) {
+        return;
+      }
       // this.lastTimestamp = new Date();
       if (data instanceof Blob) {
         // Read the Blob as text
