@@ -585,9 +585,9 @@ export class MapComponent {
     if (!ship) {
       return;
     }
-    console.log(zoomLevel);
+    console.log(window.screen.width);
     this.map.flyTo({
-      padding: { right: 15 * 25 },
+      padding: window.screen.width > 1281 ? { right: 15 * 25 } : { bottom: 120 },
       center: coordinates ?? [ship.lon, ship.lat],
       zoom: zoomLevel,
     });
