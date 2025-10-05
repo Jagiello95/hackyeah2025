@@ -382,3 +382,72 @@ body {
 .flex-2 {
   flex: 2;
 }
+
+.mat-autocomplete {
+  width: 100%;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+  --mat-form-field-filled-container-color: var(--primary);
+  --mat-form-field-filled-label-text-color: whitesmoke;
+  --mat-sys-primary: var(--secondary);
+  --mat-sys-on-surface-variant: var(--secondary);
+}
+
+.mat-mdc-autocomplete-panel {
+  background-color: var(--panel) !important;
+}
+
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+
+  .mdc-label {
+    margin-left: 1rem !important;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bolder;
+  }
+
+.mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__shadow {
+  background-color: rgb(50, 170, 118);
+  /*replace with your color*/
+}
+
+.mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__track::after {
+  background-color: var(--accent) !important;
+  /*replace with your color*/
+}
+
+.mdc-switch__track::before {
+  background: var(--primary) !important;
+}
+
+.mdc-switch__handle::before {
+  background: var(--panel) !important;
+}
+
+// /* Optional: hover/focus effects */
+// .mat-slide-toggle.mat-checked:hover .mat-slide-toggle-bar {
+//   background-color: #66bb6a !important;
+// }
+
+// .mat-slide-toggle:not(.mat-checked):hover .mat-slide-toggle-bar {
+//   background-color: #e57373 !important;
+// }
+
+::ng-deep .mat-input-element::placeholder{
+    color: var(--secondary);
+}
+
+.mdc-switch--selected .mdc-switch__icon {
+  fill: var(--panel) !important;
+}
+
+img {
+  width: 100%;
+  max-width: 250px;
+  height: auto;
+}

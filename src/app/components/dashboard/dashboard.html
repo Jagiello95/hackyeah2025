@@ -1,8 +1,41 @@
 <!-- <div class="card p-3" [class.init]="init"></div> -->
 <div class="card-container card-container--filters">
-  <!-- <div class="card p-1" [class.init]="init"></div> -->
+  <div class="p-1 flex-1 filters" [class.init]="init">
+    <span>
+      <img class="images" src="/img-good-vibes.webp" />
+      <span class="filters__shadow">
+        <mat-form-field>
+          <input matInput placeholder="Filter..." value="" [formControl]="filter" />
+        </mat-form-field>
+        <div class="toggles-container">
+          <mat-slide-toggle
+            class="top-button top-button__3"
+            [disableRipple]="true"
+            [formControl]="danger"
+          >
+            Danger
+          </mat-slide-toggle>
+          <mat-slide-toggle
+            class="top-button top-button__3"
+            [disableRipple]="true"
+            [formControl]="warn"
+          >
+            Warning
+          </mat-slide-toggle>
+          <mat-slide-toggle
+            class="top-button top-button__3"
+            [disableRipple]="true"
+            [formControl]="info"
+          >
+            Info
+          </mat-slide-toggle>
+        </div>
+      </span>
+    </span>
+  </div>
   <div class="card-container card-container--col flex-2">
-    @for (alert of alerts; track alert.id) {
+    @for (alert of alerts; track alert.id) { @if(isAllowed(alert)) {
+
     <div
       class="card p-1"
       [class.init]="init"
@@ -29,6 +62,6 @@
         <div class="description">{{ alert.reason }}</div>
       </div>
     </div>
-    }
+    } }
   </div>
 </div>

@@ -1,7 +1,18 @@
 import { Component, inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Navigation } from '../../services/navigation';
-import { BehaviorSubject, filter, from, fromEvent, map, switchMap, take, tap, timer } from 'rxjs';
+import {
+  BehaviorSubject,
+  filter,
+  from,
+  fromEvent,
+  map,
+  startWith,
+  switchMap,
+  take,
+  tap,
+  timer,
+} from 'rxjs';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatButtonModule } from '@angular/material/button';
 import { initBounceTimeout } from '../constants';
@@ -21,7 +32,7 @@ import { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 
 @Component({
   selector: 'app-map',
-  imports: [ReactiveFormsModule, MatSlideToggle, MatButtonModule, Sidebar, AsyncPipe],
+  imports: [ReactiveFormsModule, MatButtonModule, Sidebar, AsyncPipe],
   templateUrl: './map.html',
   styleUrl: './map.scss',
 })
@@ -35,7 +46,7 @@ export class MapComponent {
 
   protected marineTraffic = new FormControl(true);
   protected mock = new FormControl(false);
-  protected trackShips = new FormControl(false);
+  protected trackShips = new FormControl(true);
 
   protected countMap = new Map<number, number>();
   protected cablesColor = '#5a647c';
@@ -66,7 +77,7 @@ export class MapComponent {
       this.store.shouldMockData$.next(!!shouldMock);
     });
 
-    this.trackShips.valueChanges.subscribe((shouldTrack: boolean | null) => {
+    this.trackShips.valueChanges.pipe(startWith(true)).subscribe((shouldTrack: boolean | null) => {
       shouldTrack ? this.startWS() : this.closeWs();
     });
 
@@ -99,7 +110,7 @@ export class MapComponent {
       container: 'map',
       style: this.style,
       center: [20, 50],
-      zoom: 0,
+      zoom: 3,
     });
 
     // this.map.setRenderWorldCopies(false);
@@ -280,7 +291,7 @@ export class MapComponent {
             if (this.shipsMap.get(ship.mmsi)) {
               console.log('here');
             }
-            this.addSonarElement([ship.lng, ship.lat], false, 1, true);
+            // this.addSonarElement([ship.lng, ship.lat], false, 1, true);
             // Store/update ship
             this.shipsMap.set(ship.mmsi, ship);
             this.updateMap();

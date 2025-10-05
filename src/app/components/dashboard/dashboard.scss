@@ -7,8 +7,9 @@
 .card.init {
   margin: 1rem var(--page-spacing-md);
   transition: opacity 0.3s;
-  min-width: 240px;
+  max-height: 120px;
 
+  flex: 1;
   &:hover {
     // .mat-icon {
     //   text-shadow: 0 0 2px var(--danger), 0 0 2px var(--danger);
@@ -25,12 +26,17 @@
     padding: 0 !important;
   }
 
-  .card-container {
-    margin-top: 2rem;
+  .filters__shadow {
+    display: none !important;
+  }
 
+  .card-container {
     &--filters {
       flex-direction: column;
     }
+  }
+  img {
+    margin-top: 2.5rem;
   }
 }
 
@@ -103,4 +109,51 @@
 
 .mb-1 {
   margin-bottom: 3px;
+}
+
+.mat-form-field {
+}
+
+.toggles-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: var(--primary);
+  padding: 1.1rem 1rem;
+
+  border-bottom-left-radius: var(--default-border-radius);
+  border-bottom-right-radius: var(--default-border-radius);
+
+  .top-button {
+    margin: 0.35rem 0;
+  }
+}
+
+.filters {
+  display: flex;
+  justify-content: center;
+}
+.filters__shadow {
+  display: block;
+  box-shadow: var(--box-shadow);
+}
+
+.mat-mdc-form-field-input-control::placeholder {
+  color: var(--secondary) !important;
+  font-size: 0.6rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.card-container--filters {
+  flex: 1;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.flex-3 {
+  flex: 3;
 }

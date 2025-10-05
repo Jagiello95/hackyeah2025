@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { alertShipIds, getIcon, initBounceTimeout } from '../constants';
 import { Navigation } from '../../services/navigation';
-import { filter, forkJoin, Observable, take } from 'rxjs';
+import { combineLatest, filter, forkJoin, Observable, startWith, take } from 'rxjs';
 import { API } from '../../services/api';
 import { MatIconModule } from '@angular/material/icon';
 import { AlertType } from '../../models/alert.model';
@@ -10,10 +10,21 @@ import { Router, RouterModule } from '@angular/router';
 import { Store } from '../../services/store';
 import { ThreatType } from '../../models/alert.enum';
 import { DatePipe } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [MatIconModule, MatSlideToggleModule, RouterModule, DatePipe],
+  imports: [
+    MatIconModule,
+    MatSlideToggleModule,
+    RouterModule,
+    DatePipe,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -27,6 +38,13 @@ export class Dashboard {
 
   protected alerts: any[] = [];
   public getIconFn = getIcon;
+
+  protected filter = new FormControl('');
+  protected danger = new FormControl(true);
+  protected info = new FormControl(true);
+  protected warn = new FormControl(true);
+
+  protected allowed: string[] = ['DANGER', 'WARNING', 'INFO'];
 
   ngOnInit(): void {
     setTimeout(() => {
@@ -45,6 +63,26 @@ export class Dashboard {
     this.api.fetchAlerts().subscribe((alerts) => {
       this.alerts = alerts.map((alert, i) => ({ ...alert, id: i }));
       console.log(alerts);
+    });
+
+    combineLatest([
+      this.danger.valueChanges.pipe(startWith(true)),
+      this.warn.valueChanges.pipe(startWith(true)),
+      this.info.valueChanges.pipe(startWith(true)),
+    ]).subscribe(([danger, warn, info]) => {
+      this.allowed = [];
+
+      if (danger) {
+        this.allowed.push('DANGER');
+      }
+
+      if (warn) {
+        this.allowed.push('WARNING');
+      }
+
+      if (info) {
+        this.allowed.push('INFO');
+      }
     });
 
     // this.api.getOpenApiAlerts().subscribe((res) => {
@@ -78,5 +116,22 @@ export class Dashboard {
 
   public getAIAlerts(): Observable<AlertType[]> {
     return this.api.getOpenApiAlerts();
+  }
+
+  public isAllowed(alert: AlertType): boolean {
+    const togglesAllowed = this.allowed.includes(alert.alerT_TYPE);
+    console.log(1, this.filter.value);
+
+    if (!this.filter.value) {
+      return togglesAllowed;
+    }
+    console.log(2, this.filter.value);
+
+    const filterAllowed = [alert.reason, alert.alerT_TYPE, alert.position].some((match) => {
+      console.log(match?.toLowerCase(), this.filter.value);
+      return match?.toLowerCase().includes((this.filter.value ?? '').toLowerCase());
+    });
+
+    return togglesAllowed && filterAllowed;
   }
 }
