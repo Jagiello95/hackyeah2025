@@ -38,4 +38,8 @@ export class API {
       `'https://nominatim.openstreetmap.org/search.php?q=Poland&polygon_geojson=1&format=json';`
     );
   }
+
+  public getOpenApiAlerts(): Observable<any> {
+    return this.httpClient.post<any[]>(`${this.API}/openaiapirequest/alerts`, {});
+  }
 }

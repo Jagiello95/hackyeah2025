@@ -34,3 +34,30 @@
     word-break: break-all;
   }
 }
+
+@media only screen and (max-width: 600px) {
+  :host {
+    top: unset;
+    height: 15rem !important;
+    bottom: 0;
+
+    &.is-sidebar-expanded {
+      width: 100% !important;
+    }
+
+    .sidebar__container {
+      padding: 0.5rem 1.5rem;
+    }
+
+    .sidebar__content {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+
+      &__label {
+        margin-bottom: 1rem;
+        min-width: 10rem;
+      }
+    }
+  }
+}

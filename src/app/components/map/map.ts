@@ -88,7 +88,7 @@ export class MapComponent {
       setTimeout(() => {
         this.updateMap();
         this.loadMarineTraffic();
-      });
+      }, 500);
     }, this.afterViewTimeout);
   }
 
@@ -279,11 +279,9 @@ export class MapComponent {
               console.log('here');
             }
             this.addSonarElement([ship.lng, ship.lat], false, 1, true);
-
-            this.updateMap();
-
             // Store/update ship
             this.shipsMap.set(ship.mmsi, ship);
+            this.updateMap();
 
             // this.ships.push(json);
           } catch (err) {

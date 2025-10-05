@@ -1,6 +1,8 @@
 import { ThreatType } from '../../models/alert.enum';
 import { AlertType } from '../../models/alert.model';
 
+import { subMinutes } from 'date-fns';
+
 export const MOCK_ALERTS: AlertType[] = [
   {
     alerT_TYPE: 'WARNING',
@@ -9,7 +11,7 @@ export const MOCK_ALERTS: AlertType[] = [
     zoomLevel: 12,
     type: ThreatType.cable,
     position: 'Poland',
-    timestamp: new Date().toDateString(),
+    timestamp: subMinutes(new Date(), 14).toISOString(),
   },
   {
     alerT_TYPE: 'DANGER',
@@ -18,7 +20,7 @@ export const MOCK_ALERTS: AlertType[] = [
     zoomLevel: 10,
     type: ThreatType.tankers,
     position: 'Poland',
-    timestamp: new Date().toDateString(),
+    timestamp: subMinutes(new Date(), 26).toISOString(),
   },
   {
     alerT_TYPE: 'WARNING',
@@ -27,7 +29,7 @@ export const MOCK_ALERTS: AlertType[] = [
     zoomLevel: 6,
     type: ThreatType.fishing,
     position: 'Poland',
-    timestamp: new Date().toDateString(),
+    timestamp: subMinutes(new Date(), 38).toISOString(),
   },
   {
     alerT_TYPE: 'WARNING',
@@ -43,7 +45,7 @@ export const MOCK_ALERTS: AlertType[] = [
     zoomLevel: 4,
     type: ThreatType.spoof,
     position: 'Poland',
-    timestamp: new Date().toDateString(),
+    timestamp: subMinutes(new Date(), 50).toISOString(),
   },
   {
     alerT_TYPE: 'DANGER',
@@ -53,6 +55,6 @@ export const MOCK_ALERTS: AlertType[] = [
     zoomLevel: 6,
     type: ThreatType.territorial,
     position: 'Poland',
-    timestamp: new Date().toDateString(),
+    timestamp: subMinutes(new Date(), 76).toISOString(),
   },
 ];

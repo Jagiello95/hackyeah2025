@@ -50,7 +50,11 @@
 @media only screen and (max-width: 600px) {
   .content {
     flex-direction: column !important;
-    padding-bottom: 6rem;
+    // padding-bottom: 6rem;
+  }
+
+  .route {
+    margin: 0;
   }
 }
 

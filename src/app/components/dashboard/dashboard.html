@@ -19,7 +19,7 @@
     <div class="card-content">
       <div class="header">
         <span>{{ alert.alerT_TYPE === 'DANGER' ? 'DANGER' : 'WARNING' }}</span
-        ><span>{{ alert.timestamp }}</span>
+        ><span>{{ alert.timestamp | date }}</span>
       </div>
       <div class="label mb-1">
         <span>{{ alert.position }}</span

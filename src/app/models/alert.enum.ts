@@ -4,4 +4,5 @@ export enum ThreatType {
   fishing,
   spoof,
   territorial,
+  ai,
 }

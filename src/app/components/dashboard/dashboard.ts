@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { alertShipIds, initBounceTimeout } from '../constants';
 import { Navigation } from '../../services/navigation';
-import { filter, take } from 'rxjs';
+import { filter, forkJoin, Observable, take } from 'rxjs';
 import { API } from '../../services/api';
 import { MatIconModule } from '@angular/material/icon';
 import { AlertType } from '../../models/alert.model';
@@ -9,10 +9,11 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router, RouterModule } from '@angular/router';
 import { Store } from '../../services/store';
 import { ThreatType } from '../../models/alert.enum';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [MatIconModule, MatSlideToggleModule, RouterModule],
+  imports: [MatIconModule, MatSlideToggleModule, RouterModule, DatePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -44,6 +45,10 @@ export class Dashboard {
       this.alerts = alerts.map((alert, i) => ({ ...alert, id: i }));
       console.log(alerts);
     });
+
+    // this.api.getOpenApiAlerts().subscribe((res) => {
+    //   console.log('--->', res);
+    // });
   }
 
   public onCardClick(alert: AlertType) {
@@ -63,6 +68,8 @@ export class Dashboard {
         return 'oil_barrel';
       case ThreatType.territorial:
         return 'crisis_alert';
+      case ThreatType.ai:
+        return 'satellite_alt';
     }
 
     return 'earthquake';
@@ -85,5 +92,9 @@ export class Dashboard {
 
     const result = parts.join(' ');
     return isPast ? `${result} ago` : `in ${result}`;
+  }
+
+  public getAIAlerts(): Observable<AlertType[]> {
+    return this.api.getOpenApiAlerts();
   }
 }
