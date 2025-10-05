@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { alertShipIds, getIcon, initBounceTimeout } from '../constants';
+import { alertShipIds, getIcon, initBounceTimeout, mockedChatAlerts } from '../constants';
 import { Navigation } from '../../services/navigation';
-import { combineLatest, filter, forkJoin, Observable, startWith, take } from 'rxjs';
+import { combineLatest, delay, filter, forkJoin, map, Observable, startWith, take } from 'rxjs';
 import { API } from '../../services/api';
 import { MatIconModule } from '@angular/material/icon';
 import { AlertType } from '../../models/alert.model';
@@ -64,6 +64,30 @@ export class Dashboard {
       this.alerts = alerts.map((alert, i) => ({ ...alert, id: i }));
       console.log(alerts);
     });
+
+    this.api
+      .getOpenApiAlerts()
+      .pipe(
+        map((res) =>
+          res.map(
+            (unit: any) =>
+              ({
+                alerT_TYPE: unit.ALERT_TYPE,
+                shiP_IDS: [unit.SHIP_ID],
+                reason: unit.REASON,
+                id: unit.SHIP_ID,
+                timestamp: new Date().toUTCString(),
+                position: 'Panama',
+                zoomLevel: 5,
+                type: ThreatType.ai,
+              } as AlertType)
+          )
+        ),
+        delay(3000)
+      )
+      .subscribe((res: AlertType[]) => {
+        this.alerts = [...res, ...this.alerts];
+      });
 
     combineLatest([
       this.danger.valueChanges.pipe(startWith(true)),

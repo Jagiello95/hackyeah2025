@@ -6,6 +6,7 @@ import { of } from 'rxjs';
 import { MOCK_DATA } from '../components/map/mock-data';
 import { Store } from './store';
 import { MOCK_ALERTS } from '../components/map/mock-alerts';
+import { mockedChatAlerts } from '../components/constants';
 
 @Injectable({
   providedIn: 'root',
@@ -41,6 +42,7 @@ export class API {
   }
 
   public getOpenApiAlerts(): Observable<any> {
+    return of(mockedChatAlerts);
     return this.httpClient.post<any[]>(`${this.API}/openaiapirequest/alerts`, {});
   }
 }

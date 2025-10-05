@@ -11,9 +11,10 @@
   top: var(--header-height);
   transition: width 0.5s;
   width: 0rem;
+  justify-content: center;
 
   .sidebar__container {
-    padding: 3rem 3rem;
+    padding: 2rem 2rem;
   }
 
   .sidebar__content {
