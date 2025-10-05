@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { alertShipIds, getIcon, initBounceTimeout, mockedChatAlerts } from '../constants';
+import { getIcon, initBounceTimeout } from '../constants';
 import { Navigation } from '../../services/navigation';
-import { combineLatest, delay, filter, forkJoin, map, Observable, startWith, take } from 'rxjs';
+import { combineLatest, delay, filter, map, Observable, startWith, take } from 'rxjs';
 import { API } from '../../services/api';
 import { MatIconModule } from '@angular/material/icon';
 import { AlertType } from '../../models/alert.model';

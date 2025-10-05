@@ -1,23 +1,10 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Navigation } from '../../services/navigation';
-import {
-  BehaviorSubject,
-  filter,
-  from,
-  fromEvent,
-  map,
-  startWith,
-  switchMap,
-  take,
-  tap,
-  timer,
-} from 'rxjs';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { BehaviorSubject, filter, startWith, take } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { initBounceTimeout } from '../constants';
 import { API } from '../../services/api';
-import { HttpClient } from '@angular/common/http';
 import * as maplibregl from 'maplibre-gl';
 import * as data from './style.json';
 import { MTShipData } from '../../models/mt-ship-data.model';
@@ -29,7 +16,8 @@ import { FocusedShipPoint } from '../../models/focused-ship-point.model';
 import * as cables from './cable.json';
 import * as turf from '@turf/turf';
 import { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
-import { addMilliseconds, isAfter, isBefore, subMilliseconds } from 'date-fns';
+import { addMilliseconds, isBefore } from 'date-fns';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-map',
@@ -68,23 +56,24 @@ export class MapComponent implements OnDestroy {
 
   private popup: maplibregl.Popup | null = null;
 
+  private destroyRef = inject(DestroyRef);
+
   ngOnInit() {
     setTimeout(() => {
       this.init = true;
-      // this.addPolygon();
     }, initBounceTimeout);
 
-    // this.marineTraffic.valueChanges.subscribe((shouldLoad: boolean | null) => {
-    //   shouldLoad ? this.loadMarineTraffic() : this.removeMarineTraffic();
-    // });
+    this.mock.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((shouldMock: boolean | null) => {
+        this.store.shouldMockData$.next(!!shouldMock);
+      });
 
-    this.mock.valueChanges.subscribe((shouldMock: boolean | null) => {
-      this.store.shouldMockData$.next(!!shouldMock);
-    });
-
-    this.trackShips.valueChanges.pipe(startWith(true)).subscribe((shouldTrack: boolean | null) => {
-      shouldTrack ? this.startWS() : this.closeWs();
-    });
+    this.trackShips.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef), startWith(true))
+      .subscribe((shouldTrack: boolean | null) => {
+        shouldTrack ? this.startWS() : this.closeWs();
+      });
 
     this.nav.redirect$
       .pipe(
@@ -163,102 +152,104 @@ export class MapComponent implements OnDestroy {
   private loadMarineTraffic(): void {
     this.nav.isLoading$.next(true);
     const data: MapShipPoint[] = [];
-    this.store.shipData$.subscribe((res: MTShipData[] | null) => {
-      if (!res) {
-        return;
-      }
+    this.store.shipData$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((res: MTShipData[] | null) => {
+        if (!res) {
+          return;
+        }
 
-      this.map.addSource('ships', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: [],
-        },
-      });
-
-      this.map.addSource('ws-ships', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: [],
-        },
-      });
-
-      res.forEach((unit) => {
-        data.push({
-          lat: unit.lat,
-          lng: unit.lon,
-          mmsi: unit.shiP_ID,
-          shipType: unit.shiptype,
-          shipName: unit.shipname,
+        this.map.addSource('ships', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [],
+          },
         });
+
+        this.map.addSource('ws-ships', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [],
+          },
+        });
+
+        res.forEach((unit) => {
+          data.push({
+            lat: unit.lat,
+            lng: unit.lon,
+            mmsi: unit.shiP_ID,
+            shipType: unit.shiptype,
+            shipName: unit.shipname,
+          });
+        });
+
+        this.loadData(data);
+
+        this.map.addLayer({
+          id: 'ships',
+          type: 'circle',
+          source: 'ships',
+          paint: {
+            'circle-radius': 4,
+            // 'circle-color': 'lightcoral',
+            'circle-stroke-color': 'gray',
+            'circle-stroke-width': 0.8,
+            'circle-color': [
+              'match',
+              ['get', 'threatLevel'],
+              'high',
+              '#FF6B6B', // pastel danger
+              'medium',
+              '#FFD166', // amber warning
+              'low',
+              '#06D6A0', // safe green
+              '#999999', // default
+            ],
+          },
+        });
+
+        this.map.addLayer({
+          id: 'ws-ships',
+          type: 'circle',
+          source: 'ws-ships',
+          paint: {
+            'circle-radius': 4,
+            // 'circle-color': 'lightcoral',
+            'circle-stroke-color': 'gray',
+            'circle-stroke-width': 0.8,
+            'circle-color': [
+              'match',
+              ['get', 'threatLevel'],
+              'high',
+              '#FF6B6B', // pastel danger
+              'medium',
+              '#FFD166', // amber warning
+              'low',
+              '#06D6A0', // safe green
+              '#999999', // default
+            ],
+          },
+        });
+
+        this.registerWSShipClick();
+        this.nav.isLoading$.next(false);
+
+        const alert = this.store.selectedAlert$.value;
+
+        if (alert && alert.shiP_IDS.length > 1) {
+          this.connectTwoPoints(alert?.shiP_IDS[0], alert?.shiP_IDS[1]);
+        }
+
+        if (alert && alert.historicalPositions) {
+          this.handleHistoricalPos(alert.shiP_IDS[0], alert['historicalPositions']);
+        }
+
+        if (alert) {
+          this.selectShip(alert.shiP_IDS[0], undefined, alert.zoomLevel);
+        }
       });
-
-      this.loadData(data);
-
-      this.map.addLayer({
-        id: 'ships',
-        type: 'circle',
-        source: 'ships',
-        paint: {
-          'circle-radius': 4,
-          // 'circle-color': 'lightcoral',
-          'circle-stroke-color': 'gray',
-          'circle-stroke-width': 0.8,
-          'circle-color': [
-            'match',
-            ['get', 'threatLevel'],
-            'high',
-            '#FF6B6B', // pastel danger
-            'medium',
-            '#FFD166', // amber warning
-            'low',
-            '#06D6A0', // safe green
-            '#999999', // default
-          ],
-        },
-      });
-
-      this.map.addLayer({
-        id: 'ws-ships',
-        type: 'circle',
-        source: 'ws-ships',
-        paint: {
-          'circle-radius': 4,
-          // 'circle-color': 'lightcoral',
-          'circle-stroke-color': 'gray',
-          'circle-stroke-width': 0.8,
-          'circle-color': [
-            'match',
-            ['get', 'threatLevel'],
-            'high',
-            '#FF6B6B', // pastel danger
-            'medium',
-            '#FFD166', // amber warning
-            'low',
-            '#06D6A0', // safe green
-            '#999999', // default
-          ],
-        },
-      });
-
-      this.registerWSShipClick();
-      this.nav.isLoading$.next(false);
-
-      const alert = this.store.selectedAlert$.value;
-
-      if (alert && alert.shiP_IDS.length > 1) {
-        this.connectTwoPoints(alert?.shiP_IDS[0], alert?.shiP_IDS[1]);
-      }
-
-      if (alert && alert.historicalPositions) {
-        this.handleHistoricalPos(alert.shiP_IDS[0], alert['historicalPositions']);
-      }
-
-      if (alert) {
-        this.selectShip(alert.shiP_IDS[0], undefined, alert.zoomLevel);
-      }
-    });
 
     this.registerShipClick();
   }
@@ -286,14 +277,7 @@ export class MapComponent implements OnDestroy {
               lng: parsed.longitude,
               shipName: parsed.ShipName,
               shipType: 1,
-              // speed: parsed.speed,
-              // heading: parsed.ShipName,
-              // timestamp: Date.now(),
             };
-
-            // if (this.shipsMap.get(ship.mmsi)) {
-            //   this.addSonarElement([ship.lng, ship.lat], false, 1, true);
-            // }
 
             // Store/update ship
             this.shipsMap.set(ship.mmsi, ship);
@@ -330,13 +314,6 @@ export class MapComponent implements OnDestroy {
     if (!this.map || !this.map.getSource('ws-ships')) return;
 
     const features = Array.from(this.shipsMap.values()).map((ship) => {
-      // const shipPoint: MapShipPoint = {
-      //   lat: ship.
-      //   lng: ship.
-      //   mmsi: ship.
-      //   shipType: ship.
-      //   shipName: ship.
-      // }
       return {
         type: 'Feature',
         geometry: {
@@ -391,8 +368,6 @@ export class MapComponent implements OnDestroy {
 
     el2.classList.add(`sonar-emitter--${numOfWaves}`);
 
-    // el2.classList.add('center-absolute-xy');
-
     el.appendChild(el2);
 
     Array.from({ length: numOfWaves }).forEach((_, index) => {
@@ -404,19 +379,8 @@ export class MapComponent implements OnDestroy {
       elInner.classList.add(`sonar-wave--${color}`);
     });
 
-    // el.className = 'marker';
-    // el.style.backgroundImage = `url(https://picsum.photos/${marker.properties.iconSize.join(
-    //   '/'
-    // )}/)`;
-    // el.style.width = `${marker.properties.iconSize[0]}px`;
-    // el.style.height = `${marker.properties.iconSize[1]}px`;
-
     el.style.width = '5';
     el.style.height = '5';
-    // el.style['border-left' as any] = '10px solid transparent';
-    // el.style['border-right' as any] = '10px solid transparent';
-
-    // el.style['border-top' as any] = `20px solid yellow`;
 
     const marker = new maplibregl.Marker({ element: el }).setLngLat(coordinates).addTo(this.map);
 
@@ -436,7 +400,6 @@ export class MapComponent implements OnDestroy {
       this.activeAlerts.forEach((marker: maplibregl.Marker) => {
         marker.remove();
       });
-      const { lng, lat } = e.lngLat;
 
       const coordinates = e.features[0].geometry.coordinates.slice();
       const id: string = e.features[0].properties['id'];
@@ -451,8 +414,6 @@ export class MapComponent implements OnDestroy {
       if (ship) {
         this.selectShip(ship.shiP_ID, coordinates);
       }
-
-      // new maplibregl.Popup().setLngLat(coordinates).setHTML(description).addTo(this.map);
     });
 
     // Change the cursor to a pointer when the mouse is over the places layer.
@@ -843,64 +804,17 @@ export class MapComponent implements OnDestroy {
         paint: { 'line-color': '#2b6fb3', 'line-width': 2, 'line-dasharray': [2, 6] },
       });
 
-      // // Zoom to waters
-      // const bbox = turf.bbox(watersOnly);
-      // this.map.fitBounds(
-      //   [
-      //     [bbox[0], bbox[1]],
-      //     [bbox[2], bbox[3]],
-      //   ],
-      //   { padding: 40 }
-      // );
-
       console.log('Polish territorial waters displayed successfully!');
     } catch (err) {
       console.error('Error displaying waters:', err);
     }
   }
 
-  // // polygon
-
-  // public addPolygon(): void {
-  //   let polygon: any = {
-  //     type: 'FeatureCollection',
-  //     features: [
-  //       {
-  //         type: 'Feature',
-  //         geometry: { type: 'Polygon', coordinates: [[]] },
-  //       },
-  //     ],
-  //   };
-
-  //   this.map.on('dblclick', (e) => {
-  //     polygon.features[0].geometry.coordinates[0].push([e.lngLat.lng, e.lngLat.lat]);
-
-  //     if (!this.map.getSource('polygon-selection')) {
-  //       this.map.addSource('polygon-selection', { type: 'geojson', data: polygon });
-  //       this.map.addLayer({
-  //         id: 'polygon-selection-layer',
-  //         type: 'fill',
-  //         source: 'polygon-selection',
-  //         paint: { 'fill-color': '#00ff00', 'fill-opacity': 0.3 },
-  //       });
-  //     } else {
-  //       (this.map.getSource('polygon-selection') as any)!.setData(polygon);
-  //     }
-  //   });
-  // }
-
-  private updateShip(ship: MapShipPoint): void {}
-
   public onClose(): void {
     this.toggle$.next(false);
     this.activeAlerts.forEach((marker: maplibregl.Marker) => {
       marker.remove();
     });
-    // this.map.flyTo({
-    //   padding: window.screen.width > 600 ? { right: 15 * 25 } : { bottom: 30 },
-    //   center: this.map.getCenter(),
-    //   zoom: 4,
-    // });
   }
 
   public registerTooltips(layer: string): void {

@@ -1,4 +1,12 @@
-import { Component, EventEmitter, HostBinding, inject, Input, Output } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  EventEmitter,
+  HostBinding,
+  inject,
+  Input,
+  Output,
+} from '@angular/core';
 import { Store } from '../../services/store';
 import { MapShipPoint } from '../../models/map-ship-point.model';
 import { midCountryMap } from '../../constants/mid-to-country';
@@ -7,6 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { getIcon } from '../constants';
 import { MatDivider } from '@angular/material/divider';
 import { Navigation } from '../../services/navigation';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-sidebar',
@@ -29,6 +38,7 @@ export class Sidebar {
   @Input() fixed: boolean | null = false;
 
   protected store = inject(Store);
+  protected destroyRef = inject(DestroyRef);
   protected selectedShip: MapShipPoint | null = null;
   protected isExpanded = false;
 
@@ -38,9 +48,11 @@ export class Sidebar {
   };
 
   ngOnInit(): void {
-    this.store.focusedShip$.subscribe((ship: MapShipPoint | null) => {
-      this.selectedShip = ship;
-    });
+    this.store.focusedShip$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((ship: MapShipPoint | null) => {
+        this.selectedShip = ship;
+      });
   }
 
   ngOnChanges(changes: any): void {

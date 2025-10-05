@@ -1,4 +1,4 @@
-import { Component, HostBinding, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, HostBinding, inject, OnInit, ViewChild } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { RouterModule } from '@angular/router';
@@ -6,6 +6,7 @@ import { Navigation } from '../../services/navigation';
 import { MatIconModule } from '@angular/material/icon';
 import { UpperCasePipe } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-sidenav',
@@ -32,6 +33,8 @@ export class Sidenav implements OnInit {
   protected clickRoute: string = '';
   protected isExpanded = false;
 
+  protected destroyRef = inject(DestroyRef);
+
   protected menuOptions = [
     {
       icon: 'dashboard',
@@ -47,9 +50,11 @@ export class Sidenav implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.navigation.menuToggle$.subscribe((val: boolean) => {
-      this.isExpanded = val;
-    });
+    this.navigation.menuToggle$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((val: boolean) => {
+        this.isExpanded = val;
+      });
   }
   public isSelected(route: string): boolean {
     if (route === '/add') {

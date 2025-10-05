@@ -11,10 +11,6 @@
 
   flex: 1;
   &:hover {
-    // .mat-icon {
-    //   text-shadow: 0 0 2px var(--danger), 0 0 2px var(--danger);
-    // }
-
     cursor: pointer;
     opacity: 0.5;
   }
@@ -109,9 +105,6 @@
 
 .mb-1 {
   margin-bottom: 3px;
-}
-
-.mat-form-field {
 }
 
 .toggles-container {
