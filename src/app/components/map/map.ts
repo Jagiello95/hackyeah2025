@@ -609,7 +609,7 @@ export class MapComponent {
     });
 
     this.addSonarElement([wsShip.lng, wsShip.lat]);
-    // this.store.focusedShip$.next(ship);
+    this.store.focusedShip$.next(null);
   }
 
   public addCables(): void {
