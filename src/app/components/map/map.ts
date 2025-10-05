@@ -53,6 +53,7 @@ export class MapComponent implements OnDestroy {
   protected cablesColor = '#5a647c';
 
   protected init = false;
+  protected currentFeatureCoordinates: [number, number] | null = null;
   style: any;
   private afterViewTimeout = 0;
 
@@ -64,6 +65,8 @@ export class MapComponent implements OnDestroy {
   private subMarineCables = JSON.parse(JSON.stringify(cables));
 
   private activeAlerts: maplibregl.Marker[] = [];
+
+  private popup: maplibregl.Popup | null = null;
 
   ngOnInit() {
     setTimeout(() => {
@@ -112,11 +115,16 @@ export class MapComponent implements OnDestroy {
   private initMap() {
     this.style = JSON.parse(JSON.stringify(data));
 
+    this.popup = new maplibregl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+    });
+
     this.map = new maplibregl.Map({
       container: 'map',
       style: this.style,
-      center: [20, 50],
-      zoom: 3,
+      center: [21, 52],
+      zoom: 4,
     });
 
     // this.map.setRenderWorldCopies(false);
@@ -142,6 +150,9 @@ export class MapComponent implements OnDestroy {
           ],
         },
       });
+
+      this.registerTooltips('ships');
+      this.registerTooltips('ws-ships');
     });
   }
 
@@ -276,10 +287,10 @@ export class MapComponent implements OnDestroy {
       // console.log(data);
       // return;
       const date = new Date();
-      if (this.shipsMap.size > 500 && isBefore(date, addMilliseconds(this.lastTimestamp, 250))) {
-        return;
-      }
-      this.lastTimestamp = new Date();
+      // if (this.shipsMap.size > 500 && isBefore(date, addMilliseconds(this.lastTimestamp, 250))) {
+      //   return;
+      // }
+      // this.lastTimestamp = new Date();
       if (data instanceof Blob) {
         // Read the Blob as text
         const reader = new FileReader();
@@ -299,11 +310,10 @@ export class MapComponent implements OnDestroy {
               // timestamp: Date.now(),
             };
 
-            if (!this.shipsMap.get(ship.mmsi)) {
-              this.addSonarElement([ship.lng, ship.lat], false, 1, true);
-            }
-            if (this.shipsMap.size < 200) {
-            }
+            // if (this.shipsMap.get(ship.mmsi)) {
+            //   this.addSonarElement([ship.lng, ship.lat], false, 1, true);
+            // }
+
             // Store/update ship
             this.shipsMap.set(ship.mmsi, ship);
             this.updateMap();
@@ -921,6 +931,47 @@ export class MapComponent implements OnDestroy {
       padding: window.screen.width > 600 ? { right: 15 * 25 } : { bottom: 30 },
       center: this.map.getCenter(),
       zoom: 4,
+    });
+  }
+
+  public registerTooltips(layer: string): void {
+    this.map.on('mousemove', layer, (e: any) => {
+      if (!e) {
+        return;
+      }
+      const featureCoordinates = e.features[0].geometry.coordinates.toString();
+      if (this.currentFeatureCoordinates !== featureCoordinates) {
+        this.currentFeatureCoordinates = featureCoordinates;
+
+        // Change the cursor style as a UI indicator.
+        this.map.getCanvas().style.cursor = 'pointer';
+
+        const coordinates = e.features[0].geometry.coordinates.slice();
+        const description = e.features[0].properties.id;
+        console.log(e.features[0]);
+        const data = JSON.parse(e.features[0].properties.data);
+
+        const tooltip = data.shipName;
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        // Populate the popup and set its coordinates
+        // based on the feature found.
+        if (tooltip) {
+          this.popup!.setLngLat(coordinates).setHTML(tooltip).addTo(this.map);
+        }
+      }
+    });
+
+    this.map.on('mouseleave', layer, () => {
+      this.currentFeatureCoordinates = null;
+      this.map.getCanvas().style.cursor = '';
+      this.popup!.remove();
     });
   }
 }
