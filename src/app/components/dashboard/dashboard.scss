@@ -6,13 +6,15 @@
 
 .card.init {
   margin: 1rem var(--page-spacing-md);
+  transition: opacity 0.3s;
 
   &:hover {
-    .mat-icon {
-      text-shadow: 0 0 2px var(--danger), 0 0 2px var(--danger);
-    }
+    // .mat-icon {
+    //   text-shadow: 0 0 2px var(--danger), 0 0 2px var(--danger);
+    // }
 
     cursor: pointer;
+    opacity: 0.5;
   }
 }
 
@@ -53,10 +55,43 @@
 }
 
 .label {
-  font-size: 0.8rem;
+  font-size: 0.6rem;
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: space-between;
+  flex: 1;
+}
+
+.description {
+  flex: 1;
+  width: 100%;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+}
+
+.header {
+  flex: 1;
+  width: 100%;
+  font-size: 0.6rem;
+  font-weight: bolder;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .card-content {
   margin-left: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.mb-1 {
+  margin-bottom: 3px;
 }

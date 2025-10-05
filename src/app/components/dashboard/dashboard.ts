@@ -8,6 +8,7 @@ import { AlertType } from '../../models/alert.model';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router, RouterModule } from '@angular/router';
 import { Store } from '../../services/store';
+import { ThreatType } from '../../models/alert.enum';
 
 @Component({
   selector: 'app-dashboard',
@@ -51,10 +52,38 @@ export class Dashboard {
   }
 
   public getIcon(alert: AlertType): string {
-    if (alert.alerT_TYPE === 'DANGER') {
-      return 'crisis_alert';
+    switch (alert.type) {
+      case ThreatType.cable:
+        return 'cable';
+      case ThreatType.fishing:
+        return 'phishing';
+      case ThreatType.spoof:
+        return 'not_listed_location';
+      case ThreatType.tankers:
+        return 'oil_barrel';
+      case ThreatType.territorial:
+        return 'crisis_alert';
     }
 
     return 'earthquake';
+  }
+
+  public getTimeOffsetString(dateInput: string | Date): string {
+    const now = new Date();
+    const target = new Date(dateInput);
+    const diffMs = target.getTime() - now.getTime();
+
+    const isPast = diffMs < 0;
+    const absMs = Math.abs(diffMs);
+
+    const hours = Math.floor(absMs / (1000 * 60 * 60));
+    const minutes = Math.floor((absMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    const parts = [];
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0 || hours === 0) parts.push(`${minutes}m`);
+
+    const result = parts.join(' ');
+    return isPast ? `${result} ago` : `in ${result}`;
   }
 }
