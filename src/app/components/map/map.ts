@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Navigation } from '../../services/navigation';
 import {
@@ -37,7 +37,7 @@ import { addMilliseconds, isAfter, isBefore, subMilliseconds } from 'date-fns';
   templateUrl: './map.html',
   styleUrl: './map.scss',
 })
-export class MapComponent {
+export class MapComponent implements OnDestroy {
   protected api = inject(API);
 
   protected nav = inject(Navigation);
@@ -103,6 +103,10 @@ export class MapComponent {
         this.loadMarineTraffic();
       }, 500);
     }, this.afterViewTimeout);
+  }
+
+  ngOnDestroy(): void {
+    this.closeWs();
   }
 
   private initMap() {
@@ -272,7 +276,7 @@ export class MapComponent {
       // console.log(data);
       // return;
       const date = new Date();
-      if (this.shipsMap.size > 1000 && isBefore(date, addMilliseconds(this.lastTimestamp, 250))) {
+      if (this.shipsMap.size > 500 && isBefore(date, addMilliseconds(this.lastTimestamp, 250))) {
         return;
       }
       this.lastTimestamp = new Date();
@@ -295,11 +299,10 @@ export class MapComponent {
               // timestamp: Date.now(),
             };
 
-            if (this.shipsMap.get(ship.mmsi)) {
-              console.log('here');
-            }
-            if (this.shipsMap.size > 1000) {
+            if (!this.shipsMap.get(ship.mmsi)) {
               this.addSonarElement([ship.lng, ship.lat], false, 1, true);
+            }
+            if (this.shipsMap.size < 200) {
             }
             // Store/update ship
             this.shipsMap.set(ship.mmsi, ship);
