@@ -19,7 +19,7 @@ export class API {
     if (this.store.shouldMockData$.value) {
       return of(MOCK_DATA);
     }
-    return of([]);
+    // return of([]);
     return this.httpClient.get<MTShipData[]>(`${this.API}/ships`);
   }
 
