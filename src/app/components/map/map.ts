@@ -213,6 +213,8 @@ export class MapComponent {
           ],
         },
       });
+
+      this.registerWSShipClick();
       this.nav.isLoading$.next(false);
 
       const alert = this.store.selectedAlert$.value;
@@ -450,6 +452,42 @@ export class MapComponent {
     });
   }
 
+  private registerWSShipClick(): void {
+    this.map.on('click', 'ws-ships', (e: any) => {
+      this.activeAlerts.forEach((marker: maplibregl.Marker) => {
+        marker.remove();
+      });
+      const id = e.features[0].properties['id'];
+
+      // const coordinates = e.features[0].geometry.coordinates.slice();
+      // const id: string = e.features[0].properties['id'];
+      // Ensure that if the map is zoomed out such that multiple
+      // copies of the feature are visible, the popup appears
+      // over the copy being pointed to.
+      // while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+      //   coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      // }
+
+      const ship = this.findWSShipById(id);
+
+      if (ship) {
+        this.selectWSShip(ship, 6);
+      }
+
+      // new maplibregl.Popup().setLngLat(coordinates).setHTML(description).addTo(this.map);
+    });
+
+    // Change the cursor to a pointer when the mouse is over the places layer.
+    this.map.on('mouseenter', 'ws-ships', () => {
+      this.map.getCanvas().style.cursor = 'pointer';
+    });
+
+    // Change it back to a pointer when it leaves.
+    this.map.on('mouseleave', 'ws-ships', () => {
+      this.map.getCanvas().style.cursor = '';
+    });
+  }
+
   private assessThreatLevel(ship: MapShipPoint): 'high' | 'medium' | 'small' {
     if (!this.countMap.has(ship.shipType)) {
       this.countMap.set(ship.shipType, 0);
@@ -529,6 +567,17 @@ export class MapComponent {
     return selectedShip ? selectedShip : null;
   }
 
+  public findWSShipById(id: string): MapShipPoint | null {
+    if (!this.shipsMap.get(id)) {
+      return null;
+    }
+
+    const selectedShip = this.shipsMap.get(id);
+    console.log(selectedShip);
+
+    return selectedShip ? selectedShip : null;
+  }
+
   public selectShip(id: string, coordinates?: [number, number], zoomLevel = 6): void {
     const ship = this.findShipById(id);
     this.toggle$.next(true);
@@ -545,6 +594,22 @@ export class MapComponent {
 
     this.addSonarElement(coordinates ?? [ship.lon, ship.lat]);
     this.store.focusedShip$.next(ship);
+  }
+
+  public selectWSShip(wsShip: MapShipPoint, zoomLevel = 6): void {
+    if (!wsShip) {
+      return;
+    }
+    this.toggle$.next(true);
+
+    this.map.flyTo({
+      padding: window.screen.width > 800 ? { right: 15 * 25 } : { bottom: 30 },
+      center: [wsShip.lng, wsShip.lat],
+      zoom: zoomLevel > this.map.getZoom() ? zoomLevel : this.map.getZoom(),
+    });
+
+    this.addSonarElement([wsShip.lng, wsShip.lat]);
+    // this.store.focusedShip$.next(ship);
   }
 
   public addCables(): void {
