@@ -418,6 +418,7 @@ export class MapComponent {
 
   private registerShipClick(): void {
     this.map.on('click', 'ships', (e: any) => {
+      this.store.selectedAlert$.next(null);
       this.activeAlerts.forEach((marker: maplibregl.Marker) => {
         marker.remove();
       });
@@ -454,6 +455,8 @@ export class MapComponent {
 
   private registerWSShipClick(): void {
     this.map.on('click', 'ws-ships', (e: any) => {
+      this.store.selectedAlert$.next(null);
+
       this.activeAlerts.forEach((marker: maplibregl.Marker) => {
         marker.remove();
       });

@@ -3,10 +3,13 @@ import { Store } from '../../services/store';
 import { MapShipPoint } from '../../models/map-ship-point.model';
 import { midCountryMap } from '../../constants/mid-to-country';
 import { ShipTypes } from '../../constants/ship-type';
+import { MatIconModule } from '@angular/material/icon';
+import { getIcon } from '../constants';
+import { MatDivider } from "@angular/material/divider";
 
 @Component({
   selector: 'app-sidebar',
-  imports: [],
+  imports: [MatIconModule, MatDivider],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })
@@ -21,10 +24,14 @@ export class Sidebar {
   @Input() toggled: boolean | null = false;
   @Input() fixed: boolean | null = false;
 
-  private store = inject(Store);
-
+  protected store = inject(Store);
   protected selectedShip: MapShipPoint | null = null;
   protected isExpanded = false;
+
+  public getIconFn = getIcon;
+  protected mocks: Record<string, string> = {
+    'TXpnMU16VTVNemcxTXpVNU16ZzFNdz09LXRsRzB2YmhxRVd3bUxVa3VNMnhOS0E9PQ==': 'Tanker',
+  };
 
   ngOnInit(): void {
     this.store.focusedShip$.subscribe((ship: MapShipPoint | null) => {
@@ -46,6 +53,10 @@ export class Sidebar {
   public getShipType(ship: MapShipPoint) {
     if (!ship.shipType) {
       return 'Unknown';
+    }
+
+    if (this.mocks[ship.mmsi]) {
+      return 'Crude Oil Tanker';
     }
     return ShipTypes[+ship.shipType] ?? 'Unknown';
   }

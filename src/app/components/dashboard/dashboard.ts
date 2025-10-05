@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { alertShipIds, initBounceTimeout } from '../constants';
+import { alertShipIds, getIcon, initBounceTimeout } from '../constants';
 import { Navigation } from '../../services/navigation';
 import { filter, forkJoin, Observable, take } from 'rxjs';
 import { API } from '../../services/api';
@@ -26,6 +26,7 @@ export class Dashboard {
   protected router = inject(Router);
 
   protected alerts: any[] = [];
+  public getIconFn = getIcon;
 
   ngOnInit(): void {
     setTimeout(() => {
@@ -54,25 +55,6 @@ export class Dashboard {
   public onCardClick(alert: AlertType) {
     this.store.selectedAlert$.next(alert);
     this.router.navigate(['/map']);
-  }
-
-  public getIcon(alert: AlertType): string {
-    switch (alert.type) {
-      case ThreatType.cable:
-        return 'cable';
-      case ThreatType.fishing:
-        return 'phishing';
-      case ThreatType.spoof:
-        return 'not_listed_location';
-      case ThreatType.tankers:
-        return 'oil_barrel';
-      case ThreatType.territorial:
-        return 'crisis_alert';
-      case ThreatType.ai:
-        return 'satellite_alt';
-    }
-
-    return 'earthquake';
   }
 
   public getTimeOffsetString(dateInput: string | Date): string {

@@ -11,4 +11,5 @@ export interface AlertType {
   type: ThreatType;
   position: string;
   timestamp: string;
+  description?: string;
 }

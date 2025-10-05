@@ -5,4 +5,5 @@ export enum ThreatType {
   spoof,
   territorial,
   ai,
+  cargoPortMismatch,
 }

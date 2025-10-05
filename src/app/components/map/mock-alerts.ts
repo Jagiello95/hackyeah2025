@@ -57,4 +57,16 @@ export const MOCK_ALERTS: AlertType[] = [
     position: 'Poland',
     timestamp: subMinutes(new Date(), 76).toISOString(),
   },
+  {
+    alerT_TYPE: 'WARNING',
+    shiP_IDS: ['TXpnMU16VTVNemcxTXpVNU16ZzFNdz09LXRsRzB2YmhxRVd3bUxVa3VNMnhOS0E9PQ=='],
+    reason: 'Cargo - Port mismatch',
+    shouldDisplayTerritorialWaters: true,
+    zoomLevel: 9,
+    type: ThreatType.cargoPortMismatch,
+    position: 'Somalia',
+    timestamp: subMinutes(new Date(), 76).toISOString(),
+    description:
+      'Kismayo Port has no pipelines, loading arms, or fire suppression systems typical for oil terminals. A tanker has no legitimate unloading purpose.',
+  },
 ];

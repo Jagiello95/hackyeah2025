@@ -1,12 +1,37 @@
+@if(store.selectedAlert$.value) {
+<div class="alert-header">
+  <mat-icon
+    class="login-icon material-symbols-outlined"
+    [class.danger]="store.selectedAlert$.value.alerT_TYPE === 'DANGER'"
+    [class.warning]="store.selectedAlert$.value.alerT_TYPE === 'WARNING'"
+    >{{ getIconFn(store.selectedAlert$.value) }}</mat-icon
+  >
+</div>
+}
 <div class="sidebar__container">
-  <!-- <ng-content></ng-content> -->
+  @if(store.selectedAlert$.value?.description) {
+  <div class="sidebar__content__label">
+    <div
+      class="label label--status"
+      [class.warning]="store.selectedAlert$.value!.alerT_TYPE === 'WARNING'"
+      [class.danger]="store.selectedAlert$.value!.alerT_TYPE === 'DANGER'"
+    >
+      {{ store.selectedAlert$.value?.alerT_TYPE }}!
+    </div>
 
+    <div class="label">Anomaly</div>
+
+    <div class="value">{{ store.selectedAlert$.value?.description }}</div>
+  </div>
+  }
+  <mat-divider></mat-divider>
+  <!-- <ng-content></ng-content> -->
   @if(selectedShip) {
   <div class="sidebar__content">
     <div class="sidebar__content__label">
       <div class="label">MMSI</div>
 
-      <div class="value">{{ selectedShip.mmsi }}</div>
+      <div class="value value--mmsi">{{ selectedShip.mmsi }}</div>
     </div>
 
     <div class="sidebar__content__label">
