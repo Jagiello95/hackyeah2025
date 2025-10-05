@@ -927,6 +927,9 @@ export class MapComponent implements OnDestroy {
 
   public onClose(): void {
     this.toggle$.next(false);
+    this.activeAlerts.forEach((marker: maplibregl.Marker) => {
+      marker.remove();
+    });
     // this.map.flyTo({
     //   padding: window.screen.width > 600 ? { right: 15 * 25 } : { bottom: 30 },
     //   center: this.map.getCenter(),
