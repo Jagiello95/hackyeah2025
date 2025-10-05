@@ -1,8 +1,8 @@
 import { ThreatType } from '../models/alert.enum';
 import { AlertType } from '../models/alert.model';
 
-export const initTimeout = 50;
-export const initBounceTimeout = 200;
+export const initTimeout = 0;
+export const initBounceTimeout = 0;
 
 export const alertShipIds = ['5790752'];
 

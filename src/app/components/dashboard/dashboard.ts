@@ -79,6 +79,7 @@ export class Dashboard {
                 timestamp: new Date().toUTCString(),
                 position: 'Panama',
                 zoomLevel: 5,
+                description: unit.REASON,
                 type: ThreatType.ai,
               } as AlertType)
           )

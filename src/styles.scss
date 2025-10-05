@@ -451,3 +451,11 @@ img {
   max-width: 250px;
   height: auto;
 }
+
+.dot {
+  height: 4px;
+  width: 4px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}

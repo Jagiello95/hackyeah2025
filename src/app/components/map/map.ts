@@ -29,6 +29,7 @@ import { FocusedShipPoint } from '../../models/focused-ship-point.model';
 import * as cables from './cable.json';
 import * as turf from '@turf/turf';
 import { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
+import { addMilliseconds, isAfter, isBefore, subMilliseconds } from 'date-fns';
 
 @Component({
   selector: 'app-map',
@@ -58,6 +59,7 @@ export class MapComponent {
   protected ws: WebSocket | undefined;
 
   private shipsMap = new Map<string, MapShipPoint>();
+  private lastTimestamp: Date = new Date();
 
   private subMarineCables = JSON.parse(JSON.stringify(cables));
 
@@ -269,6 +271,11 @@ export class MapComponent {
       const data = event.data;
       // console.log(data);
       // return;
+      const date = new Date();
+      if (this.shipsMap.size > 1000 && isBefore(date, addMilliseconds(this.lastTimestamp, 250))) {
+        return;
+      }
+      this.lastTimestamp = new Date();
       if (data instanceof Blob) {
         // Read the Blob as text
         const reader = new FileReader();
@@ -291,7 +298,9 @@ export class MapComponent {
             if (this.shipsMap.get(ship.mmsi)) {
               console.log('here');
             }
-            // this.addSonarElement([ship.lng, ship.lat], false, 1, true);
+            if (this.shipsMap.size > 1000) {
+              this.addSonarElement([ship.lng, ship.lat], false, 1, true);
+            }
             // Store/update ship
             this.shipsMap.set(ship.mmsi, ship);
             this.updateMap();
@@ -510,16 +519,16 @@ export class MapComponent {
     let currentValue = this.countMap.get(ship.shipType) ?? 0;
     this.countMap.set(ship.shipType, currentValue + 1);
     switch (ship.shipType) {
-      case 0:
-        return 'high';
-      case 2:
-        return 'medium';
-      case 3:
-        return 'small';
-      case 7:
-        return 'high';
-      case 8:
-        return 'small';
+      // case 0:
+      //   return 'high';
+      // case 2:
+      //   return 'medium';
+      // case 3:
+      //   return 'small';
+      // case 7:
+      //   return 'high';
+      // case 8:
+      //   return 'small';
       default:
         return 'small';
     }
