@@ -66,7 +66,7 @@
 @media only screen and (max-width: 600px) {
   :host {
     top: unset;
-    height: 15rem !important;
+    height: unset !important;
     bottom: 0;
 
     &.is-sidebar-expanded {
