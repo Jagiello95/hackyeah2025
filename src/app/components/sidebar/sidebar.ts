@@ -5,7 +5,7 @@ import { midCountryMap } from '../../constants/mid-to-country';
 import { ShipTypes } from '../../constants/ship-type';
 import { MatIconModule } from '@angular/material/icon';
 import { getIcon } from '../constants';
-import { MatDivider } from "@angular/material/divider";
+import { MatDivider } from '@angular/material/divider';
 
 @Component({
   selector: 'app-sidebar',
@@ -58,12 +58,24 @@ export class Sidebar {
     if (this.mocks[ship.mmsi]) {
       return 'Crude Oil Tanker';
     }
+
+    if (ship.mmsi === '300239') {
+      return 'Passenger Ship';
+    }
+
+    if (['3647286', '2460691'].includes(ship.mmsi)) {
+      return 'Crude Oil Tanker';
+    }
     return ShipTypes[+ship.shipType] ?? 'Unknown';
   }
 
   public getThreatLevel(ship: MapShipPoint) {
-    if (ship.mmsi === '') {
+    if (['756295', '3647286', '2460691'].includes(ship.mmsi)) {
       return 'high';
+    }
+
+    if (['300239'].includes(ship.mmsi)) {
+      return 'low';
     }
     return 'medium';
   }

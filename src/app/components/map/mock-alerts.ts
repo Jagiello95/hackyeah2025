@@ -6,35 +6,41 @@ import { subMinutes } from 'date-fns';
 export const MOCK_ALERTS: AlertType[] = [
   {
     alerT_TYPE: 'WARNING',
-    shiP_IDS: ['665599'],
-    reason: 'a cutter floating close to underwater cables',
+    shiP_IDS: ['7053196'],
+    reason: 'Submarine infrastructure threat',
     zoomLevel: 12,
     type: ThreatType.cable,
-    position: 'Poland',
+    position: 'England',
     timestamp: subMinutes(new Date(), 14).toISOString(),
+    description:
+      'Small vessel anchored for long time near submarine cables. Might indicate danger to power infrastructure',
   },
   {
     alerT_TYPE: 'DANGER',
     shiP_IDS: ['3647286', '2460691'],
-    reason: 'two tankers close to each other',
+    reason: 'Two tankers too close to each other',
     zoomLevel: 10,
     type: ThreatType.tankers,
-    position: 'Poland',
+    position: 'Japan',
     timestamp: subMinutes(new Date(), 26).toISOString(),
+    description:
+      'Two tankers have been anchored next to each other for long time. Might indicate ship-to-ship (STS) oil transfer. Potential sanction evasion.',
   },
   {
     alerT_TYPE: 'WARNING',
-    shiP_IDS: ['728090'],
+    shiP_IDS: ['300239'],
     reason: 'Illegal fishing',
     zoomLevel: 6,
     type: ThreatType.fishing,
-    position: 'Poland',
+    position: 'Iceland',
     timestamp: subMinutes(new Date(), 38).toISOString(),
+    description:
+      'Passenger ships behaving like fishing vessel (loitering, zig-zag patterns). May be conducting illegal harvesting',
   },
   {
     alerT_TYPE: 'WARNING',
     shiP_IDS: ['TkRnMU9UUTJORGcxT1RRMk5EZzFPUT09LXdkMTQ1OExSVzBVTnZMZHo4TUVYRUE9PQ=='],
-    reason: 'GPS signal lost',
+    reason: 'AIS signal lost',
     historicalPositions: [
       // [145.91833, 48.823334, true],
       [148.91833, 50.823334, true],
@@ -44,8 +50,9 @@ export const MOCK_ALERTS: AlertType[] = [
     ],
     zoomLevel: 4,
     type: ThreatType.spoof,
-    position: 'Poland',
+    position: 'Russia',
     timestamp: subMinutes(new Date(), 50).toISOString(),
+    description: 'Ship with no AIS signal near coast: possible illegal activity',
   },
   {
     alerT_TYPE: 'DANGER',
@@ -56,6 +63,8 @@ export const MOCK_ALERTS: AlertType[] = [
     type: ThreatType.territorial,
     position: 'Poland',
     timestamp: subMinutes(new Date(), 76).toISOString(),
+    description:
+      'Analysis of historical data shows inconsistent AIS signal during past few days. Possible covert activity: smuggling, human trafficking, or military operations.',
   },
   {
     alerT_TYPE: 'WARNING',
